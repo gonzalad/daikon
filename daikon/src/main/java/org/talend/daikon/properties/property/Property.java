@@ -48,46 +48,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class Property<T> extends SimpleNamedThing implements AnyProperty {
 
-    private static final long serialVersionUID = 6151130865421353629L;
-
-    private static final String I18N_PROPERTY_PREFIX = "property."; //$NON-NLS-1$
-
     public static final String I18N_PROPERTY_POSSIBLE_VALUE_PREFIX = "property.possiblevalue."; //$NON-NLS-1$
 
     public static final int INFINITE = -1;
 
-    protected EnumSet<Flags> flags;
+    private static final long serialVersionUID = 6151130865421353629L;
 
-    private Map<String, Object> taggedValues = new HashMap<>();
+    private static final String I18N_PROPERTY_PREFIX = "property."; //$NON-NLS-1$
+
+    protected EnumSet<Flags> flags;
 
     protected Object storedValue;
 
-    transient protected PropertyValueEvaluator propertyValueEvaluator;
+    protected Object storedDefaultValue;
 
     transient protected Validator<T> validator;
 
-    public enum Flags {
-        /**
-         * Encrypt this when storing the {@link Properties} into a persistent serializable form.
-         */
-        ENCRYPT,
-        /**
-         * Don't log this value in any logs (used for sensitive information).
-         */
-        SUPPRESS_LOGGING,
-        /**
-         * Used only at design time, not necessary for runtime.
-         */
-        DESIGN_TIME_ONLY,
-        /**
-         * Hidden at runtime. Normally automatically set by
-         * {@link org.talend.daikon.properties.presentation.Widget#setHidden(boolean)} However, this can also be set or
-         * cleared independently. This is used to cause properties to not be visible and processed at runtime if
-         * necessary.
-         */
-        HIDDEN
+    protected transient PropertyValueEvaluator propertyValueEvaluator;
 
-    }
+    protected List<Property<?>> children = new ArrayList<>();
+
+    private Map<String, Object> taggedValues = new HashMap<>();
 
     private int size;
 
@@ -104,8 +85,6 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     private boolean nullable;
 
     private List<?> possibleValues;
-
-    protected List<Property<?>> children = new ArrayList<>();
 
     private String currentType;
 
@@ -168,11 +147,6 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return this;
     }
 
-    public Property<T> setDisplayName(String displayName) {
-        this.displayName = displayName;
-        return this;
-    }
-
     @Override
     public String getTitle() {
         return title;
@@ -226,10 +200,6 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return occurMinTimes > 0;
     }
 
-    public Property<T> setRequired() {
-        return setRequired(true);
-    }
-
     public Property<T> setRequired(boolean required) {
         if (required) {
             setOccurMinTimes(1);
@@ -238,6 +208,10 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         }
         setOccurMaxTimes(1);
         return this;
+    }
+
+    public Property<T> setRequired() {
+        return setRequired(true);
     }
 
     public int getPrecision() {
@@ -323,13 +297,10 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     }
 
     /**
-     * Set the stored value for this property.
-     *
-     * @see #setStoredValue(Object)
+     * Return the internal value used for serialization.
      */
-    public Property<T> setValue(T value) {
-        storedValue = value;
-        return this;
+    public Object getStoredValue() {
+        return storedValue;
     }
 
     /**
@@ -344,14 +315,7 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     }
 
     /**
-     * Return the internal value used for serialization.
-     */
-    public Object getStoredValue() {
-        return storedValue;
-    }
-
-    /**
-     * Get the actual value of the property, resolving the stored value if requried.
+     * Get the actual value of the property, resolving the stored value if required.
      *
      * @return the value of the property. This value may not be the one Stored with setValue(), it may be evaluated with
      * {@link PropertyValueEvaluator}.
@@ -367,6 +331,40 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     }
 
     /**
+     * Get the default value of the property, resolving the stored value if required.
+     *
+     * @return the value of the property. This value may not be the one Stored with setValue(), it may be evaluated with
+     * {@link PropertyValueEvaluator}.
+     * @exception ClassCastException is the stored value is not of the property type and no {@code PropertyValueEvaluator} has
+     * been set. 
+     */
+    @SuppressWarnings("unchecked")
+    public T getDefaultValue() {
+        if (propertyValueEvaluator != null) {
+            return propertyValueEvaluator.evaluate(this, storedDefaultValue);
+        } // else not evaluator so return the storedValue
+        return (T) storedDefaultValue;
+    }
+
+    /**
+     * Set the stored value for this property.
+     *
+     * @see #setStoredValue(Object)
+     */
+    public Property<T> setValue(T value) {
+        storedValue = value;
+        return this;
+    }
+
+    /**
+     * Set the default stored value for this property.
+     */
+    protected Property<T> setDefaultValue(T value) {
+        storedDefaultValue = value;
+        return this;
+    }
+
+    /**
      * @return cast the getValue() into a String.
      */
     public String getStringValue() {
@@ -376,6 +374,17 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
             return String.valueOf(value);
         }
         return null;
+    }
+
+    /**
+     * Cast the default value to a string
+     */
+    public String getStringDefaultValue() {
+        if (getDefaultValue() == null) {
+            return null;
+        } else {
+            return String.valueOf(getDefaultValue());
+        }
     }
 
     @Override
@@ -393,14 +402,20 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
                 : getI18nMessage(I18N_PROPERTY_PREFIX + name + NamedThing.I18N_DISPLAY_NAME_SUFFIX);
     }
 
+    public Property<T> setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
+
     /**
      * Return a i18n String for a given possible value. It will automatically look for the key
-     * {@value Property#I18N_PROPERTY_PREFIX}.possibleValue.toString(). {@value NamedThing#I18N_DISPLAY_NAME_SUFFIX}. if
-     * the key is not found it returns the possibleValue.toString().
+     * {@value Property#I18N_PROPERTY_PREFIX}.possibleValue.getDisplayName(). {@value NamedThing#I18N_DISPLAY_NAME_SUFFIX}. if the
+     * key
+     * is not found it returns the possibleValue.toString().
      *
      * @return a I18n value or possibleValue.toString if the value is not found.
-     * @exception TalendRuntimeException with {@link CommonErrorCodes#UNEXPECTED_ARGUMENT} if the possible value does
-     * not belong to possible values
+     * @exception TalendRuntimeException with {@link CommonErrorCodes#UNEXPECTED_ARGUMENT} if the possible value does not belong
+     * to possible values
      */
     public String getPossibleValuesDisplayName(Object possibleValue) {
         // first check that the possibleValue is part of the possible values
@@ -409,10 +424,14 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
                     ExceptionContext.build().put("argument", "possibleValues").put("value", possibleValue));
         }
         if (possibleValue != null) {
+            String possibleValueDisplayName = possibleValue.toString();
+            if (NamedThing.class.isAssignableFrom(possibleValue.getClass())) {
+                possibleValueDisplayName = ((NamedThing) possibleValue).getDisplayName();
+            }
             String i18nMessage = getI18nMessage(
-                    I18N_PROPERTY_POSSIBLE_VALUE_PREFIX + possibleValue.toString() + NamedThing.I18N_DISPLAY_NAME_SUFFIX);
+                    I18N_PROPERTY_POSSIBLE_VALUE_PREFIX + possibleValueDisplayName + NamedThing.I18N_DISPLAY_NAME_SUFFIX);
             if (i18nMessage.endsWith(NamedThing.I18N_DISPLAY_NAME_SUFFIX)) {
-                return possibleValue.toString();
+                return possibleValueDisplayName;
             } else {
                 return i18nMessage;
             }
@@ -450,12 +469,12 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return taggedValues.get(key);
     }
 
-    public void setValueEvaluator(PropertyValueEvaluator ve) {
-        this.propertyValueEvaluator = ve;
-    }
-
     public PropertyValueEvaluator getValueEvaluator() {
         return this.propertyValueEvaluator;
+    }
+
+    public void setValueEvaluator(PropertyValueEvaluator ve) {
+        this.propertyValueEvaluator = ve;
     }
 
     @Override
@@ -516,4 +535,26 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return new EqualsBuilder().appendSuper(super.equals(obj)).append(storedValue, other.storedValue).isEquals();
     }
 
+    public enum Flags {
+        /**
+         * Encrypt this when storing the {@link Properties} into a persistent serializable form.
+         */
+        ENCRYPT,
+        /**
+         * Don't log this value in any logs (used for sensitive information).
+         */
+        SUPPRESS_LOGGING,
+        /**
+         * Used only at design time, not necessary for runtime.
+         */
+        DESIGN_TIME_ONLY,
+        /**
+         * Hidden at runtime. Normally automatically set by
+         * {@link org.talend.daikon.properties.presentation.Widget#setHidden(boolean)} However, this can also be set or
+         * cleared independently. This is used to cause properties to not be visible and processed at runtime if
+         * necessary.
+         */
+        HIDDEN
+
+    }
 }

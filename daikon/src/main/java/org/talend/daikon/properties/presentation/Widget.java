@@ -44,8 +44,8 @@ public class Widget implements ToStringIndent {
     public static final String SCHEMA_EDITOR_WIDGET_TYPE = "widget.type.schema.editor";
 
     /**
-     * Presentation of a reference to a schema on one line. This shows the name of the schema and provides a button
-     * to open the schema editor/viewer in a dialog.
+     * Presentation of a reference to a schema on one line. This shows the name of the schema and provides a button to
+     * open the schema editor/viewer in a dialog.
      */
     public static final String SCHEMA_REFERENCE_WIDGET_TYPE = "widget.type.schema.reference";
 
@@ -94,13 +94,14 @@ public class Widget implements ToStringIndent {
     public static final String HIDDEN_TEXT_WIDGET_TYPE = "widget.type.hidden.text";
 
     /**
-     * A file widget with button select file from local system. The widget content shall be a {@link Property}<{@link String}>
+     * A file widget with button select file from local system. The widget content shall be a {@link Property}<
+     * {@link String}>
      */
     public static final String FILE_WIDGET_TYPE = "widget.type.file";
 
     /**
-     * A directory widget with button select directory from local system. The widget content shall be a {@link Property}<
-     * {@link String}>
+     * A directory widget with button select directory from local system. The widget content shall be a {@link Property}
+     * < {@link String}>
      */
     public static final String DIRECTORY_WIDGET_TYPE = "widget.type.directory";
 
@@ -161,6 +162,50 @@ public class Widget implements ToStringIndent {
      * 2, ..." as column names by default. The "data" is a data array. Every subset is a row of table.
      */
     public static final String JSON_TABLE_WIDGET_TYPE = "widget.type.jsonTable";
+
+    /**
+     * This widget represents a multiple checkbox which allow to select or deselect each value among a list of values.
+     *
+     * It is backed by a Property<List<String>> for the java model where the possible values are the one displayed in
+     * the widget for selection.
+     */
+    public static final String MULTIPLE_VALUE_SELECTOR_WIDGET_TYPE = "widget.type.listview";
+
+    /**
+     * This widget represents a nested properties widget - a list of additional properties which can be added or
+     * removed.
+     * 
+     * We can set the ui:options type of nested properties by setting a configuration value with the following key:
+     * {@link Widget#NESTED_PROPERTIES_TYPE_OPTION}
+     *
+     * Using the following method: {@link Widget#setConfigurationValue(String, Object)}
+     *
+     * Default value is "default"
+     *
+     * Example:
+     * setConfigurationValue(NESTED_PROPERTIES_TYPE_OPTION, "filter")
+     * 
+     */
+    public static final String NESTED_PROPERTIES = "widget.type.nestedProperties";
+
+    public static final String NESTED_PROPERTIES_TYPE_OPTION = "type";
+
+    /**
+     * This widget is designed to simplify and speed up input of source code.
+     *
+     * We can set the language that will be used for this code widget by setting a configuration value with the following key:
+     * {@link Widget#CODE_SYNTAX_WIDGET_CONF}
+     *
+     * Using the following method: {@link Widget#setConfigurationValue(String, Object)}
+     *
+     * Python is the default language if no configuration value for code syntax is specified.
+     *
+     * Example:
+     * setConfigurationValue(CODE_SYNTAX_WIDGET_CONF, "java")
+     */
+    public static final String CODE_WIDGET_TYPE = "widget.type.code";
+
+    public static final String CODE_SYNTAX_WIDGET_CONF = "language";
 
     /*
      * Widget configurations
@@ -228,12 +273,12 @@ public class Widget implements ToStringIndent {
 
     private Map<String, Object> configurationValues = new HashMap<>();
 
-    public static Widget widget(NamedThing content) {
-        return new Widget(content);
-    }
-
     public Widget(NamedThing content) {
         this.content = content;
+    }
+
+    public static Widget widget(NamedThing content) {
+        return new Widget(content);
     }
 
     public NamedThing getContent() {
@@ -281,13 +326,6 @@ public class Widget implements ToStringIndent {
     /**
      * Set or reset this as hidden and mark the underlying {@link Property} or {@link Form} as hidden or not.
      */
-    public Widget setHidden(Property<Boolean> hidden) {
-        return setHidden(hidden.getValue());
-    }
-
-    /**
-     * Set or reset this as hidden and mark the underlying {@link Property} or {@link Form} as hidden or not.
-     */
     public Widget setHidden() {
         return setHidden(true);
     }
@@ -302,13 +340,6 @@ public class Widget implements ToStringIndent {
     /**
      * Set or reset this as visible and mark the underlying {@link Property} or {@link Form} as visible or not.
      */
-    public Widget setVisible(Property<Boolean> visible) {
-        return setHidden(!visible.getValue());
-    }
-
-    /**
-     * Set or reset this as visible and mark the underlying {@link Property} or {@link Form} as visible or not.
-     */
     public Widget setVisible() {
         return setVisible(true);
     }
@@ -318,10 +349,24 @@ public class Widget implements ToStringIndent {
     }
 
     /**
+     * Set or reset this as hidden and mark the underlying {@link Property} or {@link Form} as hidden or not.
+     */
+    public Widget setHidden(Property<Boolean> hidden) {
+        return setHidden(hidden.getValue());
+    }
+
+    /**
      * return if the current Widget is visible or not.
      */
     public boolean isVisible() {
         return !hidden;
+    }
+
+    /**
+     * Set or reset this as visible and mark the underlying {@link Property} or {@link Form} as visible or not.
+     */
+    public Widget setVisible(Property<Boolean> visible) {
+        return setHidden(!visible.getValue());
     }
 
     public String getWidgetType() {
@@ -435,8 +480,8 @@ public class Widget implements ToStringIndent {
     }
 
     /**
-     * This stores a value with the given key in a map. It is only settable in {@link Properties#setupLayout()} because it may not
-     * be serialized.
+     * This stores a value with the given key in a map. It is only settable in {@link Properties#setupLayout()} because
+     * it may not be serialized.
      *
      * @param key, key to store the object with
      * @param value, any object.

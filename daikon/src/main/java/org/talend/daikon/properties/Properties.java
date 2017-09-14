@@ -23,6 +23,7 @@ import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
 import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.daikon.serialize.SerializerDeserializer;
+import org.talend.daikon.serialize.SerializerDeserializer.Deserialized;
 import org.talend.daikon.strings.ToStringIndent;
 
 /**
@@ -88,25 +89,6 @@ import org.talend.daikon.strings.ToStringIndent;
  */
 public interface Properties extends AnyProperty, ToStringIndent {
 
-    class Helper {
-
-        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedPersistent(
-                String serialized, Class<T> propertiesclass, PostDeserializeSetup postSetup) {
-            return SerializerDeserializer.fromSerialized(serialized, propertiesclass, postSetup,
-                    SerializerDeserializer.PERSISTENT);
-        }
-
-        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedPersistent(
-                String serialized, Class<T> propertiesclass) {
-            return SerializerDeserializer.fromSerialized(serialized, propertiesclass, null, SerializerDeserializer.PERSISTENT);
-        }
-
-        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedTransient(
-                String serialized, Class<T> propertiesclass) {
-            return SerializerDeserializer.fromSerialized(serialized, propertiesclass, null, SerializerDeserializer.TRANSIENT);
-        }
-    }
-
     String METHOD_BEFORE = "before";
 
     String METHOD_AFTER = "after";
@@ -126,28 +108,28 @@ public interface Properties extends AnyProperty, ToStringIndent {
 
     /**
      * Must be called once the class is instantiated to setup the properties and the layout
-     * 
+     *
      * @return this instance
      */
     Properties init();
 
     /**
      * Initialize the properties without any layout initialization.
-     * 
+     *
      * @return this instance
      */
     Properties initForRuntime();
 
     /**
      * Initialize this object, all subclass initialization should override this, and call the super. <br>
-     * 
+     *
      * @warning call super() first.
      */
     void setupProperties();
 
     /**
      * Declare the widget layout information for each of the properties.<br>
-     * 
+     *
      * @warning call super() first.
      */
     void setupLayout();
@@ -176,7 +158,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
 
     /**
      * Gets a particular {@link Form} object.
-     * 
+     *
      * @param formName the wanted form name. If null, the default form will be
      * {@link org.talend.daikon.properties.presentation.Form.MAIN}
      */
@@ -186,7 +168,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
      * Returns the requested {@link Form} object, but if that's not defined for this object, returns the first defined
      * form that exists. For example, the {@code Form.CITIZEN_USER} might be requested, but not defined, so the
      * {@code Form.MAIN} is returned instead. Return null if form is null
-     * 
+     *
      */
     Form getPreferredForm(String formName);
 
@@ -197,7 +179,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
 
     /**
      * Returns the list of properties associated with this object.
-     * 
+     *
      * @return all properties associated with this object (including those defined in superclasses).
      */
     List<NamedThing> getProperties();
@@ -227,7 +209,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
 
     /**
      * Sets the stored value associated with the specified {@link Property} object.
-     * 
+     *
      * @param property the name of the {@code Property} object.
      * @param value the value to set
      */
@@ -236,7 +218,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
     /**
      * Helper method to set the evaluator to all properties handled by this instance and all the nested Properties
      * instances.
-     * 
+     *
      * @param ve value evaluator to be used for evaluation.
      */
     void setValueEvaluator(PropertyValueEvaluator ve);
@@ -260,7 +242,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
      * parameters as long as they are assignable to the Properties type. <br/>
      * Once the property is assigned it will not be recursively scanned. But if many nested Properties have the
      * appropriate type they will all be assigned to the new value.
-     * 
+     *
      * @param newValueProperties list of Properties to be assigned to this instance nested Properties
      */
     void assignNestedProperties(Properties... newValueProperties);
@@ -275,7 +257,7 @@ public interface Properties extends AnyProperty, ToStringIndent {
      * Copy all of the values from the specified {@link Properties} object. This includes the values from any nested
      * objects. This can be used even if the {@code Properties} objects are not the same class. Fields that are not
      * present in the this {@code Properties} object are ignored.
-     * 
+     *
      * @param props pros to copy into this Properties
      * @param copyTaggedValues if true all tagged values are copied
      * @param copyEvaluators if true all evaluators are copied
@@ -285,5 +267,37 @@ public interface Properties extends AnyProperty, ToStringIndent {
     NamedThing createPropertyInstance(NamedThing otherProp) throws ReflectiveOperationException;
 
     Properties setName(String name);
+
+    class Helper {
+
+        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedPersistent(
+                String serialized, Class<T> propertiesclass, PostDeserializeSetup postSetup) {
+            Deserialized<T> prop = SerializerDeserializer.fromSerialized(serialized, propertiesclass, postSetup,
+                    SerializerDeserializer.PERSISTENT);
+
+            if (prop.object instanceof Properties) {
+                ((Properties) prop.object).init();
+            }
+
+            return prop;
+        }
+
+        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedPersistent(
+                String serialized, Class<T> propertiesclass) {
+            Deserialized<T> prop = SerializerDeserializer.fromSerialized(serialized, propertiesclass, null,
+                    SerializerDeserializer.PERSISTENT);
+
+            if (prop.object instanceof Properties) {
+                ((Properties) prop.object).init();
+            }
+
+            return prop;
+        }
+
+        public static synchronized <T extends Properties> SerializerDeserializer.Deserialized<T> fromSerializedTransient(
+                String serialized, Class<T> propertiesclass) {
+            return SerializerDeserializer.fromSerialized(serialized, propertiesclass, null, SerializerDeserializer.TRANSIENT);
+        }
+    }
 
 }
