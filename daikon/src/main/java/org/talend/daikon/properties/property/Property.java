@@ -32,6 +32,8 @@ import org.talend.daikon.exception.error.CommonErrorCodes;
 import org.talend.daikon.properties.AnyProperty;
 import org.talend.daikon.properties.AnyPropertyVisitor;
 import org.talend.daikon.properties.Properties;
+import org.talend.daikon.properties.ValidationResult;
+import org.talend.daikon.properties.validation.Validator;
 import org.talend.daikon.strings.ToStringIndentUtil;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,10 +41,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * A property that is part of a {@link Properties}.
  *
- * In order to resolve the actual values of properties from an indirect definition, like a context variable or system property,
- * the concept of a "stored value" is support. The stored value could not be the actual value, but a (typically string) key which
- * is resolved to provide the actual value when needed. The {@link PropertyValueEvaluator} is the mechanism which translates the
- * stored value to the actual value as returned by {@link #getValue()}.
+ * In order to resolve the actual values of properties from an indirect definition, like a context variable or system
+ * property, the concept of a "stored value" is support. The stored value could not be the actual value, but a
+ * (typically string) key which is resolved to provide the actual value when needed. The {@link PropertyValueEvaluator}
+ * is the mechanism which translates the stored value to the actual value as returned by {@link #getValue()}.
  */
 public class Property<T> extends SimpleNamedThing implements AnyProperty {
 
@@ -61,6 +63,8 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     protected Object storedValue;
 
     transient protected PropertyValueEvaluator propertyValueEvaluator;
+
+    transient protected Validator<T> validator;
 
     public enum Flags {
         /**
@@ -264,10 +268,10 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     }
 
     /**
-     * Return a list of possible values for this property. If the property is a simple type or an enum this will
-     * return a list of element with the same type as the Property. But for convenience if this Property is a collection type such
-     * as {@link Map<T>} this is used to simply return a list of T and not a List<Map<T>>. This will not be enforced at
-     * all, just a convention.
+     * Return a list of possible values for this property. If the property is a simple type or an enum this will return
+     * a list of element with the same type as the Property. But for convenience if this Property is a collection type
+     * such as {@link Map<T>} this is used to simply return a list of T and not a List<Map<T>>. This will not be
+     * enforced at all, just a convention.
      */
     public List<?> getPossibleValues() {
         return possibleValues == null ? (List<T>) Collections.emptyList() : possibleValues;
@@ -329,10 +333,10 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
     }
 
     /**
-     * Set the value that will be stored and serialized into this Property. Sometimes the value will not match the type of the
-     * property. For example it may be a string that refers to the value using some context mechanism. In this case a
-     * {@link PropertyValueEvaluator} is used so that when the (@link {@link Property#getValue()} is called, it is
-     * converted to the proper type.
+     * Set the value that will be stored and serialized into this Property. Sometimes the value will not match the type
+     * of the property. For example it may be a string that refers to the value using some context mechanism. In this
+     * case a {@link PropertyValueEvaluator} is used so that when the (@link {@link Property#getValue()} is called, it
+     * is converted to the proper type.
      */
     public Property<T> setStoredValue(Object value) {
         storedValue = value;
@@ -350,9 +354,9 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
      * Get the actual value of the property, resolving the stored value if requried.
      *
      * @return the value of the property. This value may not be the one Stored with setValue(), it may be evaluated with
-     *         {@link PropertyValueEvaluator}.
-     * @exception ClassCastException is the stored value is not of the property type and no {@code PropertyValueEvaluator} has
-     *                been set.
+     * {@link PropertyValueEvaluator}.
+     * @exception ClassCastException is the stored value is not of the property type and no
+     * {@code PropertyValueEvaluator} has been set.
      */
     @SuppressWarnings("unchecked")
     public T getValue() {
@@ -381,8 +385,7 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
 
     /**
      * If no displayName was specified then the i18n key, then {@link Property#I18N_PROPERTY_PREFIX} +
-     * {@code name_of_this_property} +
-     * {@link NamedThing#I18N_DISPLAY_NAME_SUFFIX} to find the value from the i18n.
+     * {@code name_of_this_property} + {@link NamedThing#I18N_DISPLAY_NAME_SUFFIX} to find the value from the i18n.
      */
     @Override
     public String getDisplayName() {
@@ -392,12 +395,12 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
 
     /**
      * Return a i18n String for a given possible value. It will automatically look for the key
-     * {@value Property#I18N_PROPERTY_PREFIX}.possibleValue.toString(). {@value NamedThing#I18N_DISPLAY_NAME_SUFFIX}. if the key
-     * is not found it returns the possibleValue.toString().
+     * {@value Property#I18N_PROPERTY_PREFIX}.possibleValue.toString(). {@value NamedThing#I18N_DISPLAY_NAME_SUFFIX}. if
+     * the key is not found it returns the possibleValue.toString().
      *
      * @return a I18n value or possibleValue.toString if the value is not found.
-     * @exception TalendRuntimeException with {@link CommonErrorCodes#UNEXPECTED_ARGUMENT} if the possible value does not belong
-     *                to possible values
+     * @exception TalendRuntimeException with {@link CommonErrorCodes#UNEXPECTED_ARGUMENT} if the possible value does
+     * not belong to possible values
      */
     public String getPossibleValuesDisplayName(Object possibleValue) {
         // first check that the possibleValue is part of the possible values
@@ -476,6 +479,17 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
      */
     public void encryptStoredValue(boolean encrypt) {
         // do nothing by default see StringProperty for an example
+    }
+
+    public ValidationResult validate() {
+        if (validator == null) {
+            return ValidationResult.OK;
+        }
+        return validator.validate(getValue());
+    }
+
+    public void setValidator(Validator<T> validator) {
+        this.validator = validator;
     }
 
     @Override

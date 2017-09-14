@@ -56,8 +56,6 @@ public class PropertiesImpl extends TranslatableTaggedImpl
 
     private ValidationResult validationResult;
 
-    private ValidationResults validationResults;
-
     transient private boolean layoutAlreadyInitalized;
 
     transient private boolean propsAlreadyInitialized;
@@ -381,9 +379,12 @@ public class PropertiesImpl extends TranslatableTaggedImpl
     /**
      * Traverse all visitable properties and accept <code>AnyPropertyVisitor</code>.
      *
-     * <p>Can be overriden by subclasses to visit extra properties that are not exposed but should be visited.
+     * <p>
+     * Can be overriden by subclasses to visit extra properties that are not exposed but should be visited.
      *
-     * <p>Example:<blockquote>
+     * <p>
+     * Example:<blockquote>
+     * 
      * <pre>
      *     {@literal @Override}
      *     protected void acceptForAllProperties(AnyPropertyVisitor visitor, Set<Properties> visited) {
@@ -393,7 +394,9 @@ public class PropertiesImpl extends TranslatableTaggedImpl
      *             acceptForProperty(visitor, visited, someSpecialProperty);
      *         }
      *     }
-     * </pre></blockquote>
+     * </pre>
+     * 
+     * </blockquote>
      *
      * @see #acceptForProperty(AnyPropertyVisitor, Set, NamedThing)
      *
@@ -433,8 +436,8 @@ public class PropertiesImpl extends TranslatableTaggedImpl
     }
 
     /**
-     * @return a NamedThing from a property path which allow to recurse into nested properties using the . as a separator
-     * for Properties names and the final Property. Or null if none found
+     * @return a NamedThing from a property path which allow to recurse into nested properties using the . as a
+     * separator for Properties names and the final Property. Or null if none found
      */
     @Override
     public NamedThing getProperty(String propPath) {
@@ -513,8 +516,29 @@ public class PropertiesImpl extends TranslatableTaggedImpl
         return validationResult;
     }
 
+    @Override
     public ValidationResults getValidationResults() {
-        return validationResults;
+        ValidationResults results = new ValidationResults();
+        List<Field> propertyFields = getAnyPropertyFields();
+        for (Field propField : propertyFields) {
+            Class<?> propType = propField.getType();
+            if (Properties.class.isAssignableFrom(propType)) {
+                propField.setAccessible(true);
+                try {
+                    Properties propsField = (Properties) propField.get(this);
+                    results.addValidationResults(propsField.getValidationResults());
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                }
+            } else if (Property.class.isAssignableFrom(propType)) {
+                propField.setAccessible(true);
+                try {
+                    Property<?> proper = (Property<?>) propField.get(this);
+                    results.addValidationResult(proper.getName(), proper.validate());
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                }
+            }
+        }
+        return results;
     }
 
     @Override
