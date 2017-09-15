@@ -521,26 +521,19 @@ public class PropertiesImpl extends TranslatableTaggedImpl
 
     @Override
     public ValidationResults getValidationResults() {
-        ValidationResults results = new ValidationResults();
-        List<Field> propertyFields = getAnyPropertyFields();
-        for (Field propField : propertyFields) {
-            Class<?> propType = propField.getType();
-            if (Properties.class.isAssignableFrom(propType)) {
-                propField.setAccessible(true);
-                try {
-                    Properties propsField = (Properties) propField.get(this);
-                    results.addValidationResults(propsField.getValidationResults());
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                }
-            } else if (Property.class.isAssignableFrom(propType)) {
-                propField.setAccessible(true);
-                try {
-                    Property<?> proper = (Property<?>) propField.get(this);
-                    results.addValidationResult(proper.getName(), proper.validate());
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                }
+        final ValidationResults results = new ValidationResults();
+        this.accept(new AnyPropertyVisitor() {
+
+            @Override
+            public void visit(Properties properties, Properties parent) {
+                // nothing to do. we will validate property fields only.
             }
-        }
+
+            @Override
+            public void visit(Property property, Properties parent) {
+                results.addValidationResult(property.getName(), property.validate());
+            }
+        }, null);
         return results;
     }
 

@@ -62,7 +62,7 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
 
     protected Object storedDefaultValue;
 
-    transient protected Validator<T> validator;
+    protected transient Validator<T> validator;
 
     protected transient PropertyValueEvaluator propertyValueEvaluator;
 
@@ -336,7 +336,7 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
      * @return the value of the property. This value may not be the one Stored with setValue(), it may be evaluated with
      * {@link PropertyValueEvaluator}.
      * @exception ClassCastException is the stored value is not of the property type and no {@code PropertyValueEvaluator} has
-     * been set. 
+     * been set.
      */
     @SuppressWarnings("unchecked")
     public T getDefaultValue() {
