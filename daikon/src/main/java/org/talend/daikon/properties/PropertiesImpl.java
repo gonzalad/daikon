@@ -520,24 +520,6 @@ public class PropertiesImpl extends TranslatableTaggedImpl
     }
 
     @Override
-    public ValidationResults getValidationResults() {
-        final ValidationResults results = new ValidationResults();
-        this.accept(new AnyPropertyVisitor() {
-
-            @Override
-            public void visit(Properties properties, Properties parent) {
-                // nothing to do. we will validate property fields only.
-            }
-
-            @Override
-            public void visit(Property property, Properties parent) {
-                results.addValidationResult(property.getName(), property.validate());
-            }
-        }, null);
-        return results;
-    }
-
-    @Override
     public void assignNestedProperties(Properties... newValueProperties) {
         List<Field> propertyFields = getAnyPropertyFields();
         for (Field propField : propertyFields) {
@@ -773,6 +755,11 @@ public class PropertiesImpl extends TranslatableTaggedImpl
         }
         return equalsBuilder.isEquals();
 
+    }
+
+    @Override
+    public ValidationResults validate() {
+        return new ValidationResults();
     }
 
 }

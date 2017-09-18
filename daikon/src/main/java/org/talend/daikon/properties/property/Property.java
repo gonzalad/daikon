@@ -507,8 +507,9 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return validator.validate(getValue());
     }
 
-    public void setValidator(Validator<T> validator) {
+    public Property<T> setValidator(Validator<T> validator) {
         this.validator = validator;
+        return this;
     }
 
     @Override

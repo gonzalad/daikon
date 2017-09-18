@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.validation.ValidationHelper;
 import org.talend.daikon.properties.validation.Validator;
 
 /**
@@ -96,11 +97,11 @@ public class ValidationResultsTest {
         ValidationProperties props = new ValidationProperties("props");
         props.init();
 
-        ValidationResults results = props.getValidationResults();
+        ValidationResults results = ValidationHelper.validateProperties(props);
         Assert.assertEquals(1, results.getErrors().size());
 
         props.nestedProperties.propertyToValidate.setValue("abc");
-        results = props.getValidationResults();
+        results = ValidationHelper.validateProperties(props);
         Assert.assertEquals(0, results.getErrors().size());
     }
 
