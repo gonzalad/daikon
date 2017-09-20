@@ -73,10 +73,8 @@ public class ValidationResults {
      * should update the value.
      */
     private boolean shouldRewrite(ValidationResult containing, ValidationResult newValue) {
-        if ((containing.getStatus() == Result.OK && newValue.getStatus() != Result.OK)
-                || (containing.getStatus() == Result.WARNING && newValue.getStatus() == Result.ERROR))
-            return true;
-        return false;
+        return ((containing.getStatus() == Result.OK && newValue.getStatus() != Result.OK)
+                || (containing.getStatus() == Result.WARNING && newValue.getStatus() == Result.ERROR));
     }
 
     /**
