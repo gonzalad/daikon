@@ -31,6 +31,12 @@ public class ValidationResultsTest {
             return nestedProperties.afterPropertyToValidate();
         }
 
+        @Override
+        public ValidationResults validate() {
+            ValidationResults result = super.validate();
+            return result;
+        }
+
     }
 
     public static final class NestedValidationProperties extends PropertiesImpl {
@@ -90,6 +96,51 @@ public class ValidationResultsTest {
 
         Map<String, ValidationResult> warnings = validationResults.getWarnings();
         Assert.assertEquals(0, warnings.size());
+    }
+
+    @Test
+    public void testRepeatedValidation() {
+        ValidationResults validationResults = new ValidationResults();
+        ValidationResult validationResult = new ValidationResult(Result.OK, "OK");
+        validationResults.addValidationResult("testResult", validationResult);
+
+        Map<String, ValidationResult> allResults = validationResults.getAllValidationResults();
+        Assert.assertEquals(1, allResults.size());
+        ValidationResult testResult = allResults.get("testResult");
+        Assert.assertEquals(Result.OK, testResult.getStatus());
+        Assert.assertEquals("OK", testResult.getMessage());
+
+        // Test that warning will rewrite ok result
+        validationResult = new ValidationResult(Result.WARNING, "WARNING");
+        validationResults.addValidationResult("testResult", validationResult);
+
+        allResults = validationResults.getAllValidationResults();
+        Assert.assertEquals(1, allResults.size());
+        testResult = allResults.get("testResult");
+        Assert.assertEquals(Result.WARNING, testResult.getStatus());
+        Assert.assertEquals("WARNING", testResult.getMessage());
+
+        // Test that Error will rewrite warning result
+        validationResult = new ValidationResult(Result.ERROR, "ERROR");
+        validationResults.addValidationResult("testResult", validationResult);
+
+        allResults = validationResults.getAllValidationResults();
+        Assert.assertEquals(1, allResults.size());
+        testResult = allResults.get("testResult");
+        Assert.assertEquals(Result.ERROR, testResult.getStatus());
+        Assert.assertEquals("ERROR", testResult.getMessage());
+
+        // Test that Warning and ok results won't rewrite error result
+        validationResult = new ValidationResult(Result.WARNING, "WARN");
+        validationResults.addValidationResult("testResult", validationResult);
+        validationResult = new ValidationResult(Result.OK, "OK");
+        validationResults.addValidationResult("testResult", validationResult);
+
+        allResults = validationResults.getAllValidationResults();
+        Assert.assertEquals(1, allResults.size());
+        testResult = allResults.get("testResult");
+        Assert.assertEquals(Result.ERROR, testResult.getStatus());
+        Assert.assertEquals("ERROR", testResult.getMessage());
     }
 
     @Test

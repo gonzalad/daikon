@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.talend.daikon.properties.ValidationResult.Result;
+
 /**
  * Contains and process validation result for every property
  */
@@ -45,12 +47,14 @@ public class ValidationResults {
     }
 
     public void addValidationResults(ValidationResults value) {
-        if (value == null) {
+        if (value == null || value.isEmpty()) {
             return;
         }
         Map<String, ValidationResult> allValidationResults = value.getAllValidationResults();
         if (allValidationResults != null) {
-            validationResults.putAll(allValidationResults);
+            for (Entry<String, ValidationResult> validationResult : allValidationResults.entrySet()) {
+                addValidationResult(validationResult.getKey(), validationResult.getValue());
+            }
         }
     }
 
@@ -58,7 +62,21 @@ public class ValidationResults {
         if (value == null) {
             return;
         }
-        validationResults.put(propName, value);
+        ValidationResult containing = validationResults.get(propName);
+        if (containing == null || shouldRewrite(containing, value)) {
+            validationResults.put(propName, value);
+        }
+    }
+
+    /**
+     * Check whether newer validation result status of processed property is more critical than the containing one. If so, we
+     * should update the value.
+     */
+    private boolean shouldRewrite(ValidationResult containing, ValidationResult newValue) {
+        if ((containing.getStatus() == Result.OK && newValue.getStatus() != Result.OK)
+                || (containing.getStatus() == Result.WARNING && newValue.getStatus() == Result.ERROR))
+            return true;
+        return false;
     }
 
     /**
@@ -105,5 +123,9 @@ public class ValidationResults {
             return "OK";
         else
             return getGeneralProblemsMessage();
+    }
+
+    public boolean isEmpty() {
+        return validationResults.isEmpty();
     }
 }
