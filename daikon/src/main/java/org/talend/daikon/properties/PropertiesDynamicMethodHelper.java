@@ -25,9 +25,13 @@ import org.talend.daikon.properties.service.Repository;
 /**
  * Helpers for the implementation methods of the {@link org.talend.daikon.properties.service.PropertiesService}.
  */
-public class PropertiesDynamicMethodHelper {
+public final class PropertiesDynamicMethodHelper {
 
     static private boolean REQUIRED = true;
+
+    private PropertiesDynamicMethodHelper() {
+        // Utility class should not have public constructor
+    }
 
     private static Method findMethod(Object obj, String type, String propertyName, boolean required) {
         if (propertyName == null || "".equals(propertyName)) {
