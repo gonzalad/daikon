@@ -1,10 +1,10 @@
 package org.talend.daikon.properties;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.talend.daikon.properties.ValidationResult.Result;
 
@@ -13,6 +13,9 @@ import org.talend.daikon.properties.ValidationResult.Result;
  */
 public class ValidationResults {
 
+    /**
+     * Map containing validation results where key is the property name.
+     */
     private Map<String, ValidationResult> validationResults;
 
     public ValidationResults() {
@@ -20,30 +23,24 @@ public class ValidationResults {
     }
 
     /**
-     * @return list of all properties warnings (ValidationResult equals Result.Warning and message should be specified)
+     * @return map of all properties warnings (ValidationResult equals Result.Warning and message should be specified)
      */
     public Map<String, ValidationResult> getWarnings() {
-        Map<String, ValidationResult> warnings = new HashMap<>();
-        for (Entry<String, ValidationResult> vr : validationResults.entrySet()) {
-            if (ValidationResult.Result.WARNING == vr.getValue().getStatus()) {
-                warnings.put(vr.getKey(), vr.getValue());
-            }
-        }
-        return warnings;
+        return filterResultsByStatus(validationResults, Result.WARNING);
     }
 
     /**
-     * @return list of all properties errors (ValidationResult equals Result.Error and error message should be
+     * @return map of all properties errors (ValidationResult equals Result.Error and error message should be
      * specified)
      */
     public Map<String, ValidationResult> getErrors() {
-        Map<String, ValidationResult> errors = new HashMap<>();
-        for (Entry<String, ValidationResult> vr : validationResults.entrySet()) {
-            if (ValidationResult.Result.ERROR == vr.getValue().getStatus()) {
-                errors.put(vr.getKey(), vr.getValue());
-            }
-        }
-        return errors;
+        return filterResultsByStatus(validationResults, Result.ERROR);
+    }
+
+    private Map<String, ValidationResult> filterResultsByStatus(Map<String, ValidationResult> results,
+            ValidationResult.Result status) {
+        return results.entrySet().stream().filter(map -> map.getValue().getStatus().equals(status))
+                .collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
     }
 
     public void addValidationResults(ValidationResults value) {
