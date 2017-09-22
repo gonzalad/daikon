@@ -33,7 +33,7 @@ public final class PropertiesDynamicMethodHelper {
         // Utility class should not have public constructor
     }
 
-    private static Method findMethod(Object obj, String type, String propertyName, boolean required) {
+    static Method findMethod(Object obj, String type, String propertyName, boolean required) {
         if (propertyName == null || "".equals(propertyName)) {
             throw new IllegalArgumentException(
                     "The ComponentService was used to access a property with a null(or empty) property name. Type: " + type
