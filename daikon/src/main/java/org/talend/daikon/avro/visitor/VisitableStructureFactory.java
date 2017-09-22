@@ -76,7 +76,7 @@ abstract class VisitableStructureFactory {
             return new VisitableBytes((ByteBuffer) value, path);
         // note: UNION is not supported yet
         default:
-            throw new RuntimeException("Unsupported Avro data type: " + type);
+            throw new IllegalArgumentException("Unsupported Avro data type: " + type);
         }
     }
 

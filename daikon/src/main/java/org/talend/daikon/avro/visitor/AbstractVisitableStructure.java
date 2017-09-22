@@ -19,21 +19,21 @@ import org.talend.daikon.avro.path.TraversalPath;
  *
  * This implementation is immutable, constructor's arguments are final members.
  *
- * @param <ValueType> the inner type of value
+ * @param <T> the inner type of value
  */
-abstract class AbstractVisitableStructure<ValueType> implements VisitableStructure<ValueType> {
+abstract class AbstractVisitableStructure<T> implements VisitableStructure<T> {
 
-    private final ValueType value;
+    private final T value;
 
     private final TraversalPath path;
 
-    protected AbstractVisitableStructure(ValueType value, TraversalPath path) {
+    protected AbstractVisitableStructure(T value, TraversalPath path) {
         this.value = value;
         this.path = path;
     }
 
     @Override
-    public final ValueType getValue() {
+    public final T getValue() {
         return value;
     }
 

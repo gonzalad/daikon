@@ -20,9 +20,9 @@ import org.talend.daikon.avro.path.TraversalPath;
  *
  * Wrappers implementations are meant to be immutable
  *
- * @param <ValueType> underlying value type
+ * @param <T> underlying value type
  */
-public interface VisitableStructure<ValueType> {
+public interface VisitableStructure<T> {
 
     /**
      * Visitable implementation
@@ -34,7 +34,7 @@ public interface VisitableStructure<ValueType> {
     /**
      * @return the actual value this field contains
      */
-    ValueType getValue();
+    T getValue();
 
     /**
      * @return the path of the field

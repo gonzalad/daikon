@@ -301,6 +301,7 @@ public class TestRecordVisit {
 
         @Override
         public void endRecord(VisitableRecord field) {
+            // nothing to test
         }
 
         @Override
@@ -310,7 +311,7 @@ public class TestRecordVisit {
 
         @Override
         public void endArray(VisitableArray field) {
-
+            // nothing to test
         }
 
         @Override
@@ -320,7 +321,7 @@ public class TestRecordVisit {
 
         @Override
         public void endMap(VisitableMap field) {
-
+            // nothing to test
         }
 
         public <T> void verifyField(String path, T value) {
