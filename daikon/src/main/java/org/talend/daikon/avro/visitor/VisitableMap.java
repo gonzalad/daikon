@@ -13,6 +13,7 @@
 package org.talend.daikon.avro.visitor;
 
 import org.apache.avro.Schema;
+import org.apache.avro.util.Utf8;
 import org.talend.daikon.avro.path.TraversalPath;
 
 import java.util.Map;
@@ -20,24 +21,25 @@ import java.util.Map;
 /**
  * Wrapper for maps.
  */
-public class VisitableMap extends AbstractVisitableStructure<Map<String, Object>> {
+public class VisitableMap extends AbstractVisitableStructure<Map<Utf8, Object>> {
 
-    public VisitableMap(Map<String, Object> value, TraversalPath path) {
+    public VisitableMap(Map<Utf8, Object> value, TraversalPath path) {
         super(value, path);
     }
 
     @Override
     public void accept(RecordVisitor visitor) {
         visitor.startMap(this);
-        Schema schema = getPath().last().getSchema();
-        Schema elementSchema = schema.getElementType();
-        Map<String, Object> map = this.getValue();
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = entry.getKey();
+        final Schema schema = getPath().last().getSchema();
+        final Schema valueSchema = schema.getValueType();
+        Map<Utf8, Object> map = this.getValue();
+        for (Map.Entry<Utf8, Object> entry : map.entrySet()) {
+            String key = entry.getKey().toString();
             Object value = entry.getValue();
             TraversalPath path = this.getPath().appendMapEntry(key);
+            VisitableStructure child = VisitableStructureFactory.createVisitableStructure(valueSchema, value, path);
+            child.accept(visitor);
         }
-
         visitor.endMap(this);
     }
 }

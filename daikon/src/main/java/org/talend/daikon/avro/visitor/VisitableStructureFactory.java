@@ -15,6 +15,7 @@ package org.talend.daikon.avro.visitor;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.util.Utf8;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.path.TraversalPath;
 
@@ -56,7 +57,7 @@ abstract class VisitableStructureFactory {
         case RECORD:
             return new VisitableRecord((IndexedRecord) value, path);
         case MAP:
-            return new VisitableMap((Map<String, Object>) value, path);
+            return new VisitableMap((Map<Utf8, Object>) value, path);
         case STRING:
             return new VisitableString(value.toString(), path);
         case BOOLEAN:

@@ -157,6 +157,69 @@ public class TestRecordVisit {
         visitor.verifyEnd();
     }
 
+    @Test
+    public void testMapOfSimpleType() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("mapOfSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/mapOfSimpleTypes", "{key1=345, key2=546, key3=125}");
+        visitor.verifyField("/mapOfSimpleTypes/key1", 345L);
+        visitor.verifyField("/mapOfSimpleTypes/key2", 546L);
+        visitor.verifyField("/mapOfSimpleTypes/key3", 125L);
+        visitor.verifyEnd();
+    }
+
+    @Test
+    public void testMapORecords() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("mapOfRecords");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/mapOfRecords", record.get(1));
+        visitor.verifyField("/mapOfRecords/key1", "{\"innerInt\": 1, \"innerString\": \"value1\"}");
+        visitor.verifyField("/mapOfRecords/key1/innerInt", 1);
+        visitor.verifyField("/mapOfRecords/key1/innerString", "value1");
+        visitor.verifyField("/mapOfRecords/key2", "{\"innerInt\": 2, \"innerString\": \"value2\"}");
+        visitor.verifyField("/mapOfRecords/key2/innerInt", 2);
+        visitor.verifyField("/mapOfRecords/key2/innerString", "value2");
+        visitor.verifyField("/mapOfRecords/key3", "{\"innerInt\": 3, \"innerString\": \"value3\"}");
+        visitor.verifyField("/mapOfRecords/key3/innerInt", 3);
+        visitor.verifyField("/mapOfRecords/key3/innerString", "value3");
+        visitor.verifyEnd();
+    }
+
+    @Test
+    public void testMapOfArrays() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("mapOfArrays");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/mapOfArrays", record.get(1));
+        visitor.verifyField("/mapOfArrays/key1", "[A, B, C]");
+        visitor.verifyField("/mapOfArrays/key1[0]", "A");
+        visitor.verifyField("/mapOfArrays/key1[1]", "B");
+        visitor.verifyField("/mapOfArrays/key1[2]", "C");
+        visitor.verifyField("/mapOfArrays/key2", "[D, E]");
+        visitor.verifyField("/mapOfArrays/key2[0]", "D");
+        visitor.verifyField("/mapOfArrays/key2[1]", "E");
+        visitor.verifyField("/mapOfArrays/key3", "[F]");
+        visitor.verifyField("/mapOfArrays/key3[0]", "F");
+        visitor.verifyEnd();
+    }
+
     private Schema loadSchema(String name) throws IOException {
         String filename = name + "_schema.json";
         try (InputStream schemaInputStream = this.getClass().getResourceAsStream(filename)) {
