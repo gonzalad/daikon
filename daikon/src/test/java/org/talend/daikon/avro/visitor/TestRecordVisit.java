@@ -1,0 +1,290 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.daikon.avro.visitor;
+
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+public class TestRecordVisit {
+
+    @Test
+    public void testSimpleTypes() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+
+        IndexedRecord record = loadRecord("simpleTypes");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/longField", 123456789L);
+        visitor.verifyField("/stringField", "stringValue");
+        visitor.verifyField("/booleanField", true);
+        visitor.verifyField("/floatField", 1.234f);
+        visitor.verifyField("/doubleField", 4.5678);
+        visitor.verifyField("/nullField", null);
+        visitor.verifyField("/enumField", "B");
+        visitor.verifyField("/fixedField", new GenericData.Fixed(null, "c24d3c52ec03b24f".getBytes()));
+        visitor.verifyBytesField("/bytesField", "ABCD".getBytes());
+        visitor.verifyEnd();
+    }
+
+    @Test
+    public void testNestedRecordType() throws IOException {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("nestedRecord");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/longField", 123456789L);
+        // visit the full inner record
+        visitor.verifyField("/inner", "{\"innerIntField\": 321, \"innerLongField\": 987654321}");
+
+        // visit the inner record structure
+        visitor.verifyField("/inner/innerIntField", 321);
+        visitor.verifyField("/inner/innerLongField", 987654321L);
+    }
+
+    @Test
+    public void testArrayOfSimpleType() throws IOException {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("arrayOfSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfSimpleTypes", Arrays.asList(456L, 789L, 123456789L));
+        visitor.verifyField("/arrayOfSimpleTypes[0]", 456L);
+        visitor.verifyField("/arrayOfSimpleTypes[1]", 789L);
+        visitor.verifyField("/arrayOfSimpleTypes[2]", 123456789L);
+    }
+
+    @Test
+    public void testArrayOfArrayOfSimpleType() throws IOException {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("arrayOfArrayOfSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        List<List<Integer>> array = createArrayOfArray();
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array);
+        visitor.verifyField("/arrayOfArrayOfSimpleType[0]", array.get(0));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[0][0]", array.get(0).get(0));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[0][1]", array.get(0).get(1));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[0][2]", array.get(0).get(2));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[1]", array.get(1));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[1][0]", array.get(1).get(0));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[1][1]", array.get(1).get(1));
+        visitor.verifyField("/arrayOfArrayOfSimpleType[1][2]", array.get(1).get(2));
+    }
+
+    @Test
+    public void testArrayOfRecords() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("arrayOfRecords");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfRecords",
+                "[{\"innerIntField\": 456, \"innerLongField\": 456789}, {\"innerIntField\": 789, \"innerLongField\": 789123}]");
+        visitor.verifyField("/arrayOfRecords[0]", "{\"innerIntField\": 456, \"innerLongField\": 456789}");
+        visitor.verifyField("/arrayOfRecords[0]/innerIntField", 456);
+        visitor.verifyField("/arrayOfRecords[0]/innerLongField", 456789L);
+        visitor.verifyField("/arrayOfRecords[1]", "{\"innerIntField\": 789, \"innerLongField\": 789123}");
+        visitor.verifyField("/arrayOfRecords[1]/innerIntField", 789);
+        visitor.verifyField("/arrayOfRecords[1]/innerLongField", 789123L);
+    }
+
+    @Test
+    public void testOptionalSimpleType() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor();
+        IndexedRecord record = loadRecord("optionalSimpleTypePresent", "optionalSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/optionalLongField", 123456789L);
+        visitor.verifyEnd();
+
+        visitor = new RecordingVisitor();
+        record = loadRecord("optionalSimpleTypeNull", "optionalSimpleType");
+
+        wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/optionalLongField", null);
+        visitor.verifyEnd();
+    }
+
+    private Schema loadSchema(String name) throws IOException {
+        String filename = name + "_schema.json";
+        try (InputStream schemaInputStream = this.getClass().getResourceAsStream(filename)) {
+            return new Schema.Parser().parse(schemaInputStream);
+        }
+    }
+
+    private IndexedRecord loadRecord(String name) throws IOException {
+        return loadRecord(name, name);
+    }
+
+    private IndexedRecord loadRecord(String name, String schemaName) throws IOException {
+        Schema schema = loadSchema(schemaName);
+        String filename = name + "_record.json";
+        try (InputStream recordInputStream = this.getClass().getResourceAsStream(filename)) {
+            Decoder decoder = DecoderFactory.get().jsonDecoder(schema, recordInputStream);
+            DatumReader<IndexedRecord> reader = new GenericDatumReader<>(schema);
+            return reader.read(null, decoder);
+        }
+    }
+
+    private List<List<Integer>> createArrayOfArray() {
+        return Arrays.asList(Arrays.asList(123, 456, 789), Arrays.asList(987, 654, 321));
+    }
+
+    private static class RecordingVisitor implements RecordVisitor {
+
+        private final LinkedList<VisitableStructure> visit = new LinkedList<>();
+
+        @Override
+        public void visit(VisitableInt field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableLong field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableString field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableBoolean field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableFloat field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableDouble field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableNull field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableFixed field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void visit(VisitableBytes field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void startRecord(VisitableRecord field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void endRecord(VisitableRecord field) {
+        }
+
+        @Override
+        public void startArray(VisitableArray field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void endArray(VisitableArray field) {
+
+        }
+
+        @Override
+        public void startMap(VisitableMap field) {
+            visit.add(field);
+        }
+
+        @Override
+        public void endMap(VisitableMap field) {
+
+        }
+
+        public <T> void verifyField(String path, T value) {
+            VisitableStructure next = visit.removeFirst();
+            Object actualValue = next.getValue();
+            if (value instanceof String && (!(actualValue instanceof String))) {
+                actualValue = actualValue.toString();
+            }
+            Assert.assertEquals("Value does not match", value, actualValue);
+            Assert.assertEquals("Full path does not match", path, next.getPath().toString());
+        }
+
+        public void verifyBytesField(String path, byte[] value) {
+            VisitableBytes field = (VisitableBytes) visit.removeFirst();
+            ByteBuffer bytes = field.getValue();
+            Assert.assertTrue(Arrays.equals(bytes.array(), value));
+            Assert.assertEquals("Full path does not match", path, field.getPath().toString());
+        }
+
+        public void verifyRoot() {
+            VisitableStructure next = visit.removeFirst();
+            Assert.assertEquals("Full path does not match", "/", next.getPath().toString());
+        }
+
+        public void verifyEnd() {
+            Assert.assertEquals("More nodes were visited", 0, visit.size());
+        }
+    }
+
+}
