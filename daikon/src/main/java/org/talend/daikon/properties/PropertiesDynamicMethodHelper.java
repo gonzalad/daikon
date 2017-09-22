@@ -33,24 +33,45 @@ public final class PropertiesDynamicMethodHelper {
         // Utility class should not have public constructor
     }
 
-    static Method findMethod(Object obj, String type, String propertyName, boolean required) {
-        if (propertyName == null || "".equals(propertyName)) {
+    /**
+     * Finds public trigger method of specified <code>type</code> for specified property. If method is <code>required</code>,
+     * but method wasn't found, then {@link IllegalArgumentException} is thrown. If method is not <code>required</code> and it
+     * wasn't
+     * found, then <code>null</code> is returned
+     * 
+     * @param instance instance whose method is being searched for
+     * @param methodType method type, i.e. prefix used before property name part in method name
+     * @param propertyName name of property, which owns the trigger
+     * @param required specify whether method is required
+     * @return found method or <code>null</code> if method wasn't found and not required
+     */
+    static Method findMethod(Object instance, String methodType, String propertyName, boolean required) {
+        if (propertyName == null || propertyName.isEmpty()) {
             throw new IllegalArgumentException(
-                    "The ComponentService was used to access a property with a null(or empty) property name. Type: " + type
-                            + " Properties: " + obj);
+                    "The ComponentService was used to access a property with a null(or empty) property name. Type: " + methodType
+                            + " Properties: " + instance);
         }
-        String propName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
-        String methodName = type + propName;
-        Method[] methods = obj.getClass().getMethods();
-        for (Method m : methods) {
-            if (m.getName().equals(methodName)) {
-                return m;
+        String methodName = methodType + capitalizeFirstLetter(propertyName);
+        try {
+            return instance.getClass().getMethod(methodName);
+        } catch (NoSuchMethodException e) {
+            if (required) {
+                throw new IllegalStateException("Method: " + methodName + " not found", e);
+            } else {
+                return null;
             }
         }
-        if (required) {
-            throw new IllegalStateException("Method: " + methodName + " not found");
-        }
-        return null;
+    }
+
+    /**
+     * Capitalizes first letter of specified <code>str</code>
+     * E.g. "test" becomes "Test"
+     * 
+     * @param str string to capitalize
+     * @return string with first letter capitalized
+     */
+    private static String capitalizeFirstLetter(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     private static void doInvoke(Properties props, Method m) throws Throwable {
