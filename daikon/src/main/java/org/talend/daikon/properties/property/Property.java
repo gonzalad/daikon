@@ -500,6 +500,12 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         // do nothing by default see StringProperty for an example
     }
 
+    /**
+     * Validate this Property value. Validation can be done in {@link Property#validator} set to this Property field or this
+     * method can be overriden to make some validation.
+     * 
+     * @return Validation result for this Property value
+     */
     public ValidationResult validate() {
         if (validator == null) {
             return ValidationResult.OK;
@@ -507,6 +513,9 @@ public class Property<T> extends SimpleNamedThing implements AnyProperty {
         return validator.validate(getValue());
     }
 
+    /**
+     * Set validator which will be used to validate value set to this Property.
+     */
     public Property<T> setValidator(Validator<T> validator) {
         this.validator = validator;
         return this;

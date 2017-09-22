@@ -31,12 +31,6 @@ public class ValidationResultsTest {
             return nestedProperties.afterPropertyToValidate();
         }
 
-        @Override
-        public ValidationResults validate() {
-            ValidationResults result = super.validate();
-            return result;
-        }
-
     }
 
     public static final class NestedValidationProperties extends PropertiesImpl {
@@ -74,18 +68,21 @@ public class ValidationResultsTest {
     }
 
     @Test
-    public void testValidationResults() {
-        ValidationResults validationResults = new ValidationResults();
-        ValidationResult validationResult = new ValidationResult(Result.OK, "OK");
-        validationResults.addValidationResult("testResult", validationResult);
-        validationResult = new ValidationResult(Result.ERROR, "ERROR");
-        validationResults.addValidationResult("errorResult", validationResult);
+    public void testOkValidationResults() {
+        ValidationResults validationResults = createDefaultValidationResults();
 
-        Map<String, ValidationResult> allResults = validationResults.getAllValidationResults();
+        Map<String, ValidationResult> allResults = validationResults.getAll();
         Assert.assertEquals(allResults.size(), 2);
         ValidationResult testResult = allResults.get("testResult");
         Assert.assertEquals(Result.OK, testResult.getStatus());
         Assert.assertEquals("OK", testResult.getMessage());
+    }
+
+    @Test
+    public void testErrorValidationResults() {
+        ValidationResults validationResults = createDefaultValidationResults();
+
+        Map<String, ValidationResult> allResults = validationResults.getAll();
 
         ValidationResult errorResult = allResults.get("errorResult");
         Assert.assertEquals(Result.ERROR, errorResult.getStatus());
@@ -98,13 +95,22 @@ public class ValidationResultsTest {
         Assert.assertEquals(0, warnings.size());
     }
 
+    private ValidationResults createDefaultValidationResults() {
+        ValidationResults validationResults = new ValidationResults();
+        ValidationResult validationResult = new ValidationResult(Result.OK, "OK");
+        validationResults.addValidationResult("testResult", validationResult);
+        validationResult = new ValidationResult(Result.ERROR, "ERROR");
+        validationResults.addValidationResult("errorResult", validationResult);
+        return validationResults;
+    }
+
     @Test
     public void testRepeatedValidation() {
         ValidationResults validationResults = new ValidationResults();
         ValidationResult validationResult = new ValidationResult(Result.OK, "OK");
         validationResults.addValidationResult("testResult", validationResult);
 
-        Map<String, ValidationResult> allResults = validationResults.getAllValidationResults();
+        Map<String, ValidationResult> allResults = validationResults.getAll();
         Assert.assertEquals(1, allResults.size());
         ValidationResult testResult = allResults.get("testResult");
         Assert.assertEquals(Result.OK, testResult.getStatus());
@@ -114,7 +120,7 @@ public class ValidationResultsTest {
         validationResult = new ValidationResult(Result.WARNING, "WARNING");
         validationResults.addValidationResult("testResult", validationResult);
 
-        allResults = validationResults.getAllValidationResults();
+        allResults = validationResults.getAll();
         Assert.assertEquals(1, allResults.size());
         testResult = allResults.get("testResult");
         Assert.assertEquals(Result.WARNING, testResult.getStatus());
@@ -124,7 +130,7 @@ public class ValidationResultsTest {
         validationResult = new ValidationResult(Result.ERROR, "ERROR");
         validationResults.addValidationResult("testResult", validationResult);
 
-        allResults = validationResults.getAllValidationResults();
+        allResults = validationResults.getAll();
         Assert.assertEquals(1, allResults.size());
         testResult = allResults.get("testResult");
         Assert.assertEquals(Result.ERROR, testResult.getStatus());
@@ -136,7 +142,7 @@ public class ValidationResultsTest {
         validationResult = new ValidationResult(Result.OK, "OK");
         validationResults.addValidationResult("testResult", validationResult);
 
-        allResults = validationResults.getAllValidationResults();
+        allResults = validationResults.getAll();
         Assert.assertEquals(1, allResults.size());
         testResult = allResults.get("testResult");
         Assert.assertEquals(Result.ERROR, testResult.getStatus());

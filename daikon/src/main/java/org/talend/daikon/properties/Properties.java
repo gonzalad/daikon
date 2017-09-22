@@ -21,6 +21,7 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
+import org.talend.daikon.properties.validation.ValidationHelper;
 import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.daikon.serialize.SerializerDeserializer.Deserialized;
@@ -262,7 +263,8 @@ public interface Properties extends AnyProperty, ToStringIndent {
     Properties setName(String name);
 
     /**
-     * Method to validate this Properties instance and get {@link ValidationResults} for this Object.
+     * Method to validate this Properties instance and get {@link ValidationResults} for this Object. This method is called using
+     * {@link ValidationHelper#validateProperties(Properties)} to validate this Properties object and all properties it includes.
      * 
      * @return validation results for this Properties
      */

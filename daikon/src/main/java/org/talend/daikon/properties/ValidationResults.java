@@ -1,5 +1,18 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.daikon.properties;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,9 +27,9 @@ import org.talend.daikon.properties.ValidationResult.Result;
 public class ValidationResults {
 
     /**
-     * Map containing validation results where key is the property name.
+     * Map containing validation results where key is the property name and the value is ValidationResult for this Property.
      */
-    private Map<String, ValidationResult> validationResults;
+    private final Map<String, ValidationResult> validationResults;
 
     public ValidationResults() {
         this.validationResults = new LinkedHashMap<>();
@@ -39,19 +52,17 @@ public class ValidationResults {
 
     private Map<String, ValidationResult> filterResultsByStatus(Map<String, ValidationResult> results,
             ValidationResult.Result status) {
-        return results.entrySet().stream().filter(map -> map.getValue().getStatus().equals(status))
-                .collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
+        return results.entrySet().stream().filter(entry -> entry.getValue().getStatus().equals(status))
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
     }
 
     public void addValidationResults(ValidationResults value) {
         if (value == null || value.isEmpty()) {
             return;
         }
-        Map<String, ValidationResult> allValidationResults = value.getAllValidationResults();
-        if (allValidationResults != null) {
-            for (Entry<String, ValidationResult> validationResult : allValidationResults.entrySet()) {
-                addValidationResult(validationResult.getKey(), validationResult.getValue());
-            }
+        Map<String, ValidationResult> allValidationResults = value.getAll();
+        for (Entry<String, ValidationResult> validationResult : allValidationResults.entrySet()) {
+            addValidationResult(validationResult.getKey(), validationResult.getValue());
         }
     }
 
@@ -75,9 +86,9 @@ public class ValidationResults {
     }
 
     /**
-     * @return unmodifiable Map where keys are problemKeys and values are all ValidationResults
+     * @return unmodifiable Map where keys are property names and values are all ValidationResults
      */
-    public Map<String, ValidationResult> getAllValidationResults() {
+    public Map<String, ValidationResult> getAll() {
         return Collections.unmodifiableMap(validationResults);
     }
 
@@ -85,13 +96,12 @@ public class ValidationResults {
      * @return actual ValidationResult.Result depending on available errors and warning
      */
     public ValidationResult.Result calculateValidationStatus() {
-        ValidationResult.Result status = ValidationResult.Result.OK;
         if (!getErrors().isEmpty()) {
-            status = ValidationResult.Result.ERROR;
+            return ValidationResult.Result.ERROR;
         } else if (!getWarnings().isEmpty()) {
-            status = ValidationResult.Result.WARNING;
+            return ValidationResult.Result.WARNING;
         }
-        return status;
+        return ValidationResult.Result.OK;
     }
 
     /**
@@ -100,13 +110,19 @@ public class ValidationResults {
     private String getGeneralProblemsMessage() {
         StringBuilder message = new StringBuilder();
 
-        for (Object error : getErrors().values()) {
-            message.append(error.toString()).append("\n");
+        addMessages(message, getErrors().values());
+        addMessages(message, getWarnings().values());
+
+        return message.toString();
+    }
+
+    private void addMessages(StringBuilder sb, Collection<ValidationResult> results) {
+        for (ValidationResult vr : results) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            sb.append(vr.toString());
         }
-        for (Object warning : getWarnings().values()) {
-            message.append(warning.toString()).append("\n");
-        }
-        return message.substring(0, message.length() - 1);
     }
 
     /**
@@ -114,10 +130,8 @@ public class ValidationResults {
      */
     @Override
     public String toString() {
-        if (validationResults.isEmpty())
-            return "OK";
-        else
-            return getGeneralProblemsMessage();
+        String value = getGeneralProblemsMessage();
+        return value.isEmpty() ? "OK" : value;
     }
 
     public boolean isEmpty() {
