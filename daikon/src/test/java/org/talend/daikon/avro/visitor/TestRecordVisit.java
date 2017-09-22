@@ -51,7 +51,7 @@ public class TestRecordVisit {
         visitor.verifyField("/enumField", "B");
         visitor.verifyField("/fixedField", new GenericData.Fixed(null, "c24d3c52ec03b24f".getBytes()));
         visitor.verifyBytesField("/bytesField", "ABCD".getBytes());
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class TestRecordVisit {
         visitor.verifyRoot();
         visitor.verifyField("/intField", 123);
         visitor.verifyField("/optionalLongField", 123456789L);
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
 
         visitor = new RecordingVisitor();
         record = loadRecord("optionalSimpleTypeNull", "optionalSimpleType");
@@ -154,7 +154,7 @@ public class TestRecordVisit {
         visitor.verifyRoot();
         visitor.verifyField("/intField", 123);
         visitor.verifyField("/optionalLongField", null);
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -171,7 +171,7 @@ public class TestRecordVisit {
         visitor.verifyField("/mapOfSimpleTypes/key1", 345L);
         visitor.verifyField("/mapOfSimpleTypes/key2", 546L);
         visitor.verifyField("/mapOfSimpleTypes/key3", 125L);
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -194,7 +194,7 @@ public class TestRecordVisit {
         visitor.verifyField("/mapOfRecords/key3", "{\"innerInt\": 3, \"innerString\": \"value3\"}");
         visitor.verifyField("/mapOfRecords/key3/innerInt", 3);
         visitor.verifyField("/mapOfRecords/key3/innerString", "value3");
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -217,7 +217,7 @@ public class TestRecordVisit {
         visitor.verifyField("/mapOfArrays/key2[1]", "E");
         visitor.verifyField("/mapOfArrays/key3", "[F]");
         visitor.verifyField("/mapOfArrays/key3[0]", "F");
-        visitor.verifyEnd();
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     private Schema loadSchema(String name) throws IOException {
@@ -346,8 +346,8 @@ public class TestRecordVisit {
             Assert.assertEquals("Full path does not match", "/", next.getPath().toString());
         }
 
-        public void verifyEnd() {
-            Assert.assertEquals("More nodes were visited", 0, visit.size());
+        public boolean isVerified() {
+            return visit.isEmpty();
         }
     }
 
