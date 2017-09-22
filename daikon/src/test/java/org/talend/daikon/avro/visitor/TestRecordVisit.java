@@ -71,6 +71,7 @@ public class TestRecordVisit {
         // visit the inner record structure
         visitor.verifyField("/inner/innerIntField", 321);
         visitor.verifyField("/inner/innerLongField", 987654321L);
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -87,6 +88,7 @@ public class TestRecordVisit {
         visitor.verifyField("/arrayOfSimpleTypes[0]", 456L);
         visitor.verifyField("/arrayOfSimpleTypes[1]", 789L);
         visitor.verifyField("/arrayOfSimpleTypes[2]", 123456789L);
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -110,6 +112,7 @@ public class TestRecordVisit {
         visitor.verifyField("/arrayOfArrayOfSimpleType[1][0]", array.get(1).get(0));
         visitor.verifyField("/arrayOfArrayOfSimpleType[1][1]", array.get(1).get(1));
         visitor.verifyField("/arrayOfArrayOfSimpleType[1][2]", array.get(1).get(2));
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
@@ -130,6 +133,7 @@ public class TestRecordVisit {
         visitor.verifyField("/arrayOfRecords[1]", "{\"innerIntField\": 789, \"innerLongField\": 789123}");
         visitor.verifyField("/arrayOfRecords[1]/innerIntField", 789);
         visitor.verifyField("/arrayOfRecords[1]/innerLongField", 789123L);
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
     @Test
