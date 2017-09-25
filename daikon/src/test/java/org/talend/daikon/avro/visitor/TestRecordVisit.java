@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -299,33 +300,30 @@ public class TestRecordVisit {
         }
 
         @Override
-        public void startRecord(VisitableRecord field) {
+        public void visit(VisitableRecord record) {
+            visit.add(record);
+            Iterator<VisitableStructure> fields = record.getFields();
+            while (fields.hasNext()) {
+                fields.next().accept(this);
+            }
+        }
+
+        @Override
+        public void visit(VisitableArray array) {
+            visit.add(array);
+            Iterator<VisitableStructure> items = array.getItems(VisitableArray.ArrayItemsPathType.INDEXED);
+            while (items.hasNext()) {
+                items.next().accept(this);
+            }
+        }
+
+        @Override
+        public void visit(VisitableMap field) {
             visit.add(field);
-        }
-
-        @Override
-        public void endRecord(VisitableRecord field) {
-            // nothing to test
-        }
-
-        @Override
-        public void startArray(VisitableArray field) {
-            visit.add(field);
-        }
-
-        @Override
-        public void endArray(VisitableArray field) {
-            // nothing to test
-        }
-
-        @Override
-        public void startMap(VisitableMap field) {
-            visit.add(field);
-        }
-
-        @Override
-        public void endMap(VisitableMap field) {
-            // nothing to test
+            Iterator<VisitableStructure> items = field.getValues();
+            while (items.hasNext()) {
+                items.next().accept(this);
+            }
         }
 
         public <T> void verifyField(String path, T value) {

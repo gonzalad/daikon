@@ -31,6 +31,69 @@ package org.talend.daikon.avro.visitor;
 public interface RecordVisitor {
 
     /**
+     * Visits a record.
+     *
+     * To continue the visit and iterate over the fields of this record, use
+     * {@link VisitableRecord#getFields()}
+     *
+     * <pre>
+     *     {@code
+     *     void visit(VisitableRecord record) {
+     *         Iterator<VisitableStructure> fields = record.getFields();
+     *         while(fields.hasNext()) {
+     *             fields.next().accept(this);
+     *         }
+     *     }
+     *     }
+     * </pre>
+     *
+     * @param record the record to visit
+     */
+    void visit(VisitableRecord record);
+
+    /**
+     * Visits an array
+     *
+     * To continue the visit and iterate over the items of this array, use
+     * {@link VisitableArray#getItems(VisitableArray.ArrayItemsPathType)}.
+     *
+     * <pre>
+     *     {@code
+     *     void visit(VisitableArray array) {
+     *        Iterator<VisitableStructure> items = array.getItems(VisitableArray.ArrayItemsPathType.INDEXED);
+     *        while(items.hasNext()) {
+     *           items.next().accept(this);
+     *        }
+     *     }
+     *     }
+     * </pre>
+     *
+     * @param array the array to visit
+     */
+    void visit(VisitableArray array);
+
+    /**
+     * Visits a map.
+     *
+     * To continue the visit, iterate over the entries of this map, use
+     * {@link VisitableMap#getValues()}
+     *
+     * <pre>
+     *     {@code
+     *     void visit(VisitableMap map) {
+     *        Iterator<VisitableStructure> entries = map.getEntries();
+     *        while(entries.hasNext()) {
+     *           entries.next().accept(this);
+     *        }
+     *     }
+     *     }
+     * </pre>
+     *
+     * @param map the map to visit
+     */
+    void visit(VisitableMap map);
+
+    /**
      * visits an integer field
      * 
      * @param field the field to visit
@@ -85,42 +148,4 @@ public interface RecordVisitor {
      */
     void visit(VisitableBytes field);
 
-    /**
-     * starts visiting a record field. Called before the children fields are actually visited.
-     * Children are visited in Schema order after this method is completed.
-     * @param field the field to visit
-     */
-    void startRecord(VisitableRecord field);
-
-    /**
-     * stops visiting a record field. Called once all children fields were visited.
-     * @param field the field to visit
-     */
-    void endRecord(VisitableRecord field);
-
-    /**
-     * starts visiting an array field. Called before values are actually visited.
-     * Values are visited after this method is completed.
-     * @param field the field to visit
-     */
-    void startArray(VisitableArray field);
-
-    /**
-     * stops visiting an array field. Called after all values were visited
-     * @param field the field to visit
-     */
-    void endArray(VisitableArray field);
-
-    /**
-     * starts visiting a map field. Called before entries are actually visited.
-     * Entries are visited after this method is completed.
-     * @param field the field to visit
-     */
-    void startMap(VisitableMap field);
-
-    /**
-     * stops visiting a map field. Called once all entries were visited.
-     * @param field the field to visit
-     */
-    void endMap(VisitableMap field);
 }

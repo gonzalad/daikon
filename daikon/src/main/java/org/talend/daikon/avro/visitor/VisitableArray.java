@@ -16,12 +16,22 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.talend.daikon.avro.path.TraversalPath;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Wrapper for arrays.
  *
- * Calling the accept method will call {@link RecordVisitor#startArray(VisitableArray)} then
- * create a wrapper object for each value contained and call the corresponding accept method
- * on this wrapper to trigger its visit and finally call {@link RecordVisitor#endArray(VisitableArray)}
+ * Calling the {@link #accept(RecordVisitor)} will only call {@link RecordVisitor#visit(VisitableArray)}.
+ *
+ * To visit all items of the array, call the {@link #getItems(ArrayItemsPathType)} method and visit each
+ * item.
+ *
+ * When calling this method, it is possible to choose how item's path are built, it is either:
+ * - index (/array[0], /array[1] ...)
+ * - not indexed /array path will be returned for each item of the array
  */
 public class VisitableArray extends AbstractVisitableStructure<GenericData.Array> {
 
@@ -31,15 +41,66 @@ public class VisitableArray extends AbstractVisitableStructure<GenericData.Array
 
     @Override
     public void accept(RecordVisitor visitor) {
-        visitor.startArray(this);
-        GenericData.Array array = this.getValue();
-        Schema elementSchema = array.getSchema().getElementType();
-        for (int i = 0; i < array.size(); i++) {
-            Object value = array.get(i);
-            TraversalPath path = this.getPath().appendArrayIndex(i);
-            VisitableStructure element = VisitableStructureFactory.createVisitableStructure(elementSchema, value, path);
-            element.accept(visitor);
-        }
-        visitor.endArray(this);
+        visitor.visit(this);
     }
+
+    /**
+     * @return an iterator over all items contained in the array
+     * @param type how items path is built
+     *
+     */
+    public Iterator<VisitableStructure> getItems(ArrayItemsPathType type) {
+        final GenericData.Array array = this.getValue();
+        final Schema elementSchema = array.getSchema().getElementType();
+        final List<VisitableStructure> items = new ArrayList<>(array.size());
+        for (int i = 0; i < array.size(); i++) {
+            final Object value = array.get(i);
+            final TraversalPath path = type.buildTraversalPath(this.getPath(), i);
+            final VisitableStructure element = VisitableStructureFactory.createVisitableStructure(elementSchema, value, path);
+            items.add(element);
+        }
+        return Collections.unmodifiableList(items).iterator();
+    }
+
+    /**
+     * Defines how arrays elements' path are built.
+     */
+    public enum ArrayItemsPathType {
+
+        INDEXED(new IndexedArrayItemPathBuilder()),
+        NOT_INDEXED(new NotIndexedArrayItemPathBuilder());
+
+        private final ArrayItemPathBuilder pathBuilder;
+
+        ArrayItemsPathType(ArrayItemPathBuilder pathBuilder) {
+            this.pathBuilder = pathBuilder;
+        }
+
+        private TraversalPath buildTraversalPath(TraversalPath path, int index) {
+            return this.pathBuilder.buildTraversalPath(path, index);
+        }
+    }
+
+    private interface ArrayItemPathBuilder {
+
+        TraversalPath buildTraversalPath(TraversalPath path, int index);
+
+    }
+
+    private static class IndexedArrayItemPathBuilder implements ArrayItemPathBuilder {
+
+        @Override
+        public TraversalPath buildTraversalPath(TraversalPath path, int index) {
+            return path.appendArrayIndex(index);
+        }
+    }
+
+    private static class NotIndexedArrayItemPathBuilder implements ArrayItemPathBuilder {
+
+        @Override
+        public TraversalPath buildTraversalPath(TraversalPath path, int index) {
+            return path;
+        }
+    }
+
 }

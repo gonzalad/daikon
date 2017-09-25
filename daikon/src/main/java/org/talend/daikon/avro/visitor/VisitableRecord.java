@@ -16,14 +16,16 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.daikon.avro.path.TraversalPath;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Main entry point of the Avro visitable API.
  *
- * To visit an IndexedRecord:
- *
- * Calling the accept method will call {@link RecordVisitor#startRecord(VisitableRecord)} then
- * create a wrapper object for each field contained in the record and call the corresponding accept
- * method on this wrapper to trigger its visit and finally call {@link RecordVisitor#endRecord(VisitableRecord)}
+ * To visit an IndexedRecord and its fields, implement the {@link RecordVisitor} interface,
+ * instantiate an new VisitableRecord and execute its {@link #accept(RecordVisitor)} method
  */
 public class VisitableRecord extends AbstractVisitableStructure<IndexedRecord> {
 
@@ -42,13 +44,20 @@ public class VisitableRecord extends AbstractVisitableStructure<IndexedRecord> {
 
     @Override
     public void accept(RecordVisitor visitor) {
-        visitor.startRecord(this);
+        visitor.visit(this);
+    }
+
+    /**
+     * @return an iterator over this record's field
+     */
+    public Iterator<VisitableStructure> getFields() {
         final Schema schema = this.getValue().getSchema();
+        final List<VisitableStructure> fields = new ArrayList<>(schema.getFields().size());
         for (Schema.Field field : schema.getFields()) {
             final TraversalPath fieldPath = this.getPath().append(field.name(), field.pos(), field.schema());
             final VisitableStructure node = VisitableStructureFactory.createVisitableField(field, getValue(), fieldPath);
-            node.accept(visitor);
+            fields.add(node);
         }
-        visitor.endRecord(this);
+        return Collections.unmodifiableList(fields).iterator();
     }
 }
