@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.runtime.RuntimeContext;
 
 /**
  * Unit-tests for {@link PropertiesDynamicMethodHelper}
@@ -37,6 +38,10 @@ public class PropertiesDynamicMethodHelperTest {
         }
 
         public void afterTest() {
+
+        }
+
+        public void afterTest(RuntimeContext context) {
 
         }
 
@@ -94,6 +99,20 @@ public class PropertiesDynamicMethodHelperTest {
 
         TestProperties props = new TestProperties("test");
         Method method = PropertiesDynamicMethodHelper.findMethod(props, Properties.METHOD_AFTER, "test", false);
+        Assert.assertEquals(expectedMethodDefinition, method.toString());
+    }
+
+    /**
+     * Asserts public method with parameter is found
+     */
+    @Test
+    public void testFindMethodPublicWithParams() {
+        String expectedMethodDefinition = "public void org.talend.daikon.properties.PropertiesDynamicMethodHelperTest$TestProperties.afterTest("
+                + "org.talend.daikon.properties.runtime.RuntimeContext)";
+
+        TestProperties props = new TestProperties("test");
+        Method method = PropertiesDynamicMethodHelper.findMethod(props, Properties.METHOD_AFTER, "test", false,
+                RuntimeContext.class);
         Assert.assertEquals(expectedMethodDefinition, method.toString());
     }
 

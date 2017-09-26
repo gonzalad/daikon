@@ -43,9 +43,11 @@ public final class PropertiesDynamicMethodHelper {
      * @param methodType method type, i.e. prefix used before property name part in method name
      * @param propertyName name of property, which owns the trigger
      * @param required specify whether method is required
+     * @param the list of parameter
      * @return found method or <code>null</code> if method wasn't found and not required
      */
-    static Method findMethod(Object instance, String methodType, String propertyName, boolean required) {
+    static Method findMethod(Object instance, String methodType, String propertyName, boolean required,
+            Class<?>... parameterTypes) {
         if (instance == null) {
             throw new NullPointerException("Instance whose method is being searched for should not be null");
         }
@@ -56,7 +58,7 @@ public final class PropertiesDynamicMethodHelper {
         }
         String methodName = methodType + capitalizeFirstLetter(propertyName);
         try {
-            return instance.getClass().getMethod(methodName);
+            return instance.getClass().getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
             if (required) {
                 throw new IllegalArgumentException("Method: " + methodName + " not found", e);
