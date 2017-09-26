@@ -120,32 +120,233 @@ public final class PropertiesDynamicMethodHelper {
         }
     }
 
+    /**
+     * Finds {@code validate<PropertyName>} overloaded method with {@link RuntimeContext} parameter and calls it using Reflection
+     * API
+     * 
+     * @param props {@link Properties} instance
+     * @param propName property name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code validate<PropertyName>} method
+     */
+
+    /**
+     * Checks whether {@code validate<PropertyName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code validate<PropertyName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code validate<PropertyName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method.
+     * Sets the result of {@code validate<PropertyName>} method invocation as {@link Properties} instance {@link ValidationResult}
+     * 
+     * @param props {@link Properties} instance
+     * @param propName property name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code after<PropertyName>} method
+     */
+    public static void validateProperty(Properties props, String propName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_VALIDATE, propName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_VALIDATE, propName, !REQUIRED, RuntimeContext.class);
+        try {
+            ValidationResult result;
+            if (callbackWithParameters != null) {
+                result = (ValidationResult) callbackWithParameters.invoke(props, context);
+            } else {
+                result = (ValidationResult) callbackWithoutParameters.invoke(props);
+            }
+            ((PropertiesImpl) props).setValidationResult(result);
+        } catch (InvocationTargetException e) {
+            throw e.getTargetException();
+        }
+    }
+
     public static void beforePropertyActivate(Properties props, String propName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_BEFORE, propName, REQUIRED));
+    }
+
+    /**
+     * Checks whether {@code before<PropertyName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code before<PropertyName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code before<PropertyName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param propName property name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code before<PropertyName>} method
+     */
+    public static void beforePropertyActivate(Properties props, String propName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_BEFORE, propName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_BEFORE, propName, !REQUIRED, RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
     }
 
     public static void beforePropertyPresent(Properties props, String propName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_BEFORE, propName, REQUIRED));
     }
 
+    /**
+     * Checks whether {@code before<PropertyName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code before<PropertyName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code before<PropertyName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param propName property name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code before<PropertyName>} method
+     */
+    public static void beforePropertyPresent(Properties props, String propName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_BEFORE, propName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_BEFORE, propName, !REQUIRED, RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
+    }
+
     public static void afterProperty(Properties props, String propName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_AFTER, propName, REQUIRED));
+    }
+
+    /**
+     * Checks whether {@code after<PropertyName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code after<PropertyName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code after<PropertyName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param propName property name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code after<PropertyName>} method
+     */
+    public static void afterProperty(Properties props, String propName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_AFTER, propName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_AFTER, propName, !REQUIRED, RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
     }
 
     public static void beforeFormPresent(Properties props, String formName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_BEFORE_FORM, formName, REQUIRED));
     }
 
+    /**
+     * Checks whether {@code beforeFormPresent<FormName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code beforeFormPresent<FormName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code beforeFormPresent<FormName>} method with {@link RuntimeContext}
+     * parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param formName {@link Form} name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code beforeFormPresent<FormName>} method
+     */
+    public static void beforeFormPresent(Properties props, String formName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_BEFORE_FORM, formName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_BEFORE_FORM, formName, !REQUIRED,
+                RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
+    }
+
     public static void afterFormNext(Properties props, String formName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_AFTER_FORM_NEXT, formName, REQUIRED));
+    }
+
+    /**
+     * Checks whether {@code afterFormNext<FormName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code afterFormNext<FormName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code afterFormNext<FormName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param formName {@link Form} name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code afterFormNext<FormName>} method
+     */
+    public static void afterFormNext(Properties props, String formName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_AFTER_FORM_NEXT, formName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_AFTER_FORM_NEXT, formName, !REQUIRED,
+                RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
     }
 
     public static void afterFormBack(Properties props, String formName) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_AFTER_FORM_BACK, formName, REQUIRED));
     }
 
+    /**
+     * Checks whether {@code afterFormBack<FormName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code afterFormBack<FormName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code afterFormBack<FormName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param formName {@link Form} name to which trigger method is related
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code afterFormBack<FormName>} method
+     */
+    public static void afterFormBack(Properties props, String formName, RuntimeContext context) throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_AFTER_FORM_BACK, formName, REQUIRED);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_AFTER_FORM_BACK, formName, !REQUIRED,
+                RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters);
+        }
+    }
+
     public static void afterFormFinish(Properties props, String formName, Repository repostory) throws Throwable {
         doInvoke(props, findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, formName, REQUIRED, Repository.class), repostory);
+    }
+
+    /**
+     * Checks whether {@code afterFormFinish<FormName>} method without parameters is present in {@link Properties} class.
+     * It must be present, when {@code afterFormFinish<FormName>} with {@link RuntimeContext} parameter is present in the class.
+     * If it is not present {@link IllegalArgumentException} is thrown to indicate that method not found.
+     * If it is present, than method tries to find {@code afterFormFinish<FormName>} method with {@link RuntimeContext} parameter.
+     * If it finds overloaded method, it calls it. Otherwise, it calls original method
+     * 
+     * @param props {@link Properties} instance
+     * @param formName {@link Form} name to which trigger method is related
+     * @param repository {@link Repository} instance which is used to save properties
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code afterFormFinish<FormName>} method
+     */
+    public static void afterFormFinish(Properties props, String formName, Repository repostory, RuntimeContext context)
+            throws Throwable {
+        Method callbackWithoutParameters = findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, formName, REQUIRED,
+                Repository.class);
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, formName, !REQUIRED,
+                Repository.class, RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, repostory, context);
+        } else {
+            doInvoke(props, callbackWithoutParameters, repostory);
+        }
     }
 
     public static void afterReference(Properties props, ReferenceProperties<Properties> refProp) throws Throwable {
@@ -153,6 +354,30 @@ public final class PropertiesDynamicMethodHelper {
         if (afterRefCallback != null) {
             doInvoke(props, afterRefCallback);
         } // else not method to call back so ignores it
+    }
+
+    /**
+     * Tries to find {@code after<ReferencePropertyName>} method with parameters in {@link Properties} class.
+     * If it is present, it is called. If it is not present, then finds method without parameters and call it.
+     * If it is also not present, then nothing happens.
+     * 
+     * @param props {@link Properties} instance
+     * @param refProp instance of {@link ReferenceProperties}
+     * @param context {@link RuntimeContext} provided by Platform which is calling this service
+     * @throws Throwable any Exception thrown by {@code after<ReferencePropertyName>} method
+     */
+    public static void afterReference(Properties props, ReferenceProperties<Properties> refProp, RuntimeContext context)
+            throws Throwable {
+        Method callbackWithParameters = findMethod(props, Properties.METHOD_AFTER, refProp.getName(), !REQUIRED,
+                RuntimeContext.class);
+        if (callbackWithParameters != null) {
+            doInvoke(props, callbackWithParameters, context);
+        } else {
+            Method callbackWithoutParameters = findMethod(props, Properties.METHOD_AFTER, refProp.getName(), !REQUIRED);
+            if (callbackWithoutParameters != null) {
+                doInvoke(props, callbackWithoutParameters);
+            }
+        } // else no method to call back, so ignore it
     }
 
     public static void setFormLayoutMethods(Properties props, String property, Form form) {
