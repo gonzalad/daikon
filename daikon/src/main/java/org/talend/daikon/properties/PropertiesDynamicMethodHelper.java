@@ -20,6 +20,7 @@ import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.properties.error.PropertiesErrorCode;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
+import org.talend.daikon.properties.runtime.RuntimeContext;
 import org.talend.daikon.properties.service.Repository;
 
 /**
@@ -144,7 +145,7 @@ public final class PropertiesDynamicMethodHelper {
     }
 
     public static void afterFormFinish(Properties props, String formName, Repository repostory) throws Throwable {
-        doInvoke(props, findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, formName, REQUIRED), repostory);
+        doInvoke(props, findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, formName, REQUIRED, Repository.class), repostory);
     }
 
     public static void afterReference(Properties props, ReferenceProperties<Properties> refProp) throws Throwable {
