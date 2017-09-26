@@ -63,21 +63,16 @@ public class PropertiesDynamicMethodHelperTest {
         PropertiesDynamicMethodHelper.findMethod(props, Properties.METHOD_AFTER, null, true);
     }
 
-    /**
-     * TODO fix method
-     */
     @Test
     public void testFindMethodNullObject() {
-        thrown.expect(IllegalArgumentException.class);
+        thrown.expect(NullPointerException.class);
+        thrown.expectMessage("Instance whose method is being searched for should not be null");
         PropertiesDynamicMethodHelper.findMethod(null, Properties.METHOD_AFTER, "testProp", true);
     }
 
-    /**
-     * TODO fix exception type
-     */
     @Test
     public void testFindMethodUnknownTypeRequired() {
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: unknownTriggerTypeTestProp not found");
         TestProperties props = new TestProperties("test");
         PropertiesDynamicMethodHelper.findMethod(props, "unknownTriggerType", "testProp", true);

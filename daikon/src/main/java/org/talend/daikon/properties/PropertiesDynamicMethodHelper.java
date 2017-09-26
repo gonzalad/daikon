@@ -46,6 +46,9 @@ public final class PropertiesDynamicMethodHelper {
      * @return found method or <code>null</code> if method wasn't found and not required
      */
     static Method findMethod(Object instance, String methodType, String propertyName, boolean required) {
+        if (instance == null) {
+            throw new NullPointerException("Instance whose method is being searched for should not be null");
+        }
         if (propertyName == null || propertyName.isEmpty()) {
             throw new IllegalArgumentException(
                     "The ComponentService was used to access a property with a null(or empty) property name. Type: " + methodType
@@ -56,7 +59,7 @@ public final class PropertiesDynamicMethodHelper {
             return instance.getClass().getMethod(methodName);
         } catch (NoSuchMethodException e) {
             if (required) {
-                throw new IllegalStateException("Method: " + methodName + " not found", e);
+                throw new IllegalArgumentException("Method: " + methodName + " not found", e);
             } else {
                 return null;
             }
