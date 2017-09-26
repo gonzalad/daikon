@@ -99,7 +99,16 @@ public class VisitableArray extends AbstractVisitableStructure<GenericData.Array
 
         @Override
         public TraversalPath buildTraversalPath(TraversalPath path, int index) {
-            return path;
+            Schema elementsSchema = path.last().getSchema().getElementType();
+            Iterator<TraversalPath.TraversalPathElement> iterator = path.iterator();
+            TraversalPath.TraversalPathElement current = iterator.next();
+            TraversalPath result = TraversalPath.create(current.getSchema());
+            while (current != path.last()) {
+                result = result.append(current);
+                current = iterator.next();
+            }
+            result = result.append(path.last().getName(), path.last().getPosition(), elementsSchema);
+            return result;
         }
     }
 

@@ -93,6 +93,23 @@ public class TestRecordVisit {
     }
 
     @Test
+    public void testArrayOfSimpleTypeNotIndexed() throws IOException {
+        RecordingVisitor visitor = new RecordingVisitor(VisitableArray.ArrayItemsPathType.NOT_INDEXED);
+        IndexedRecord record = loadRecord("arrayOfSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfSimpleTypes", Arrays.asList(456L, 789L, 123456789L));
+        visitor.verifyField("/arrayOfSimpleTypes", 456L, Schema.create(Schema.Type.LONG));
+        visitor.verifyField("/arrayOfSimpleTypes", 789L, Schema.create(Schema.Type.LONG));
+        visitor.verifyField("/arrayOfSimpleTypes", 123456789L, Schema.create(Schema.Type.LONG));
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
+    }
+
+    @Test
     public void testArrayOfArrayOfSimpleType() throws IOException {
         RecordingVisitor visitor = new RecordingVisitor();
         IndexedRecord record = loadRecord("arrayOfArrayOfSimpleType");
@@ -117,6 +134,33 @@ public class TestRecordVisit {
     }
 
     @Test
+    public void testArrayOfArrayOfSimpleTypeNotIndexed() throws IOException {
+        RecordingVisitor visitor = new RecordingVisitor(VisitableArray.ArrayItemsPathType.NOT_INDEXED);
+        IndexedRecord record = loadRecord("arrayOfArrayOfSimpleType");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        List<List<Integer>> array = createArrayOfArray();
+
+        Schema firstLevelArray = record.getSchema().getField("arrayOfArrayOfSimpleType").schema();
+        Schema secondLevelArray = firstLevelArray.getElementType();
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array);
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(0), secondLevelArray);
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(0).get(0), secondLevelArray.getElementType());
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(0).get(1), secondLevelArray.getElementType());
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(0).get(2), secondLevelArray.getElementType());
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(1), secondLevelArray);
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(1).get(0), secondLevelArray.getElementType());
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(1).get(1), secondLevelArray.getElementType());
+        visitor.verifyField("/arrayOfArrayOfSimpleType", array.get(1).get(2), secondLevelArray.getElementType());
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
+    }
+
+    @Test
     public void testArrayOfRecords() throws Exception {
         RecordingVisitor visitor = new RecordingVisitor();
         IndexedRecord record = loadRecord("arrayOfRecords");
@@ -134,6 +178,28 @@ public class TestRecordVisit {
         visitor.verifyField("/arrayOfRecords[1]", "{\"innerIntField\": 789, \"innerLongField\": 789123}");
         visitor.verifyField("/arrayOfRecords[1]/innerIntField", 789);
         visitor.verifyField("/arrayOfRecords[1]/innerLongField", 789123L);
+        Assert.assertTrue("Visitor not verified", visitor.isVerified());
+    }
+
+    @Test
+    public void testArrayOfRecordsNotIndexed() throws Exception {
+        RecordingVisitor visitor = new RecordingVisitor(VisitableArray.ArrayItemsPathType.NOT_INDEXED);
+        IndexedRecord record = loadRecord("arrayOfRecords");
+
+        VisitableRecord wrapper = new VisitableRecord(record);
+        wrapper.accept(visitor);
+
+        Schema innerSchema = record.getSchema().getField("arrayOfRecords").schema().getElementType();
+
+        visitor.verifyRoot();
+        visitor.verifyField("/intField", 123);
+        visitor.verifyField("/arrayOfRecords", record.get(1));
+        visitor.verifyField("/arrayOfRecords", "{\"innerIntField\": 456, \"innerLongField\": 456789}", innerSchema);
+        visitor.verifyField("/arrayOfRecords/innerIntField", 456, Schema.create(Schema.Type.INT));
+        visitor.verifyField("/arrayOfRecords/innerLongField", 456789L, Schema.create(Schema.Type.LONG));
+        visitor.verifyField("/arrayOfRecords", "{\"innerIntField\": 789, \"innerLongField\": 789123}", innerSchema);
+        visitor.verifyField("/arrayOfRecords/innerIntField", 789, Schema.create(Schema.Type.INT));
+        visitor.verifyField("/arrayOfRecords/innerLongField", 789123L, Schema.create(Schema.Type.LONG));
         Assert.assertTrue("Visitor not verified", visitor.isVerified());
     }
 
@@ -254,6 +320,16 @@ public class TestRecordVisit {
 
         private final LinkedList<VisitableStructure> visit = new LinkedList<>();
 
+        private final VisitableArray.ArrayItemsPathType arraysPathType;
+
+        private RecordingVisitor() {
+            this(VisitableArray.ArrayItemsPathType.INDEXED);
+        }
+
+        private RecordingVisitor(VisitableArray.ArrayItemsPathType arraysPathType) {
+            this.arraysPathType = arraysPathType;
+        }
+
         @Override
         public void visit(VisitableInt field) {
             visit.add(field);
@@ -311,7 +387,7 @@ public class TestRecordVisit {
         @Override
         public void visit(VisitableArray array) {
             visit.add(array);
-            Iterator<VisitableStructure> items = array.getItems(VisitableArray.ArrayItemsPathType.INDEXED);
+            Iterator<VisitableStructure> items = array.getItems(this.arraysPathType);
             while (items.hasNext()) {
                 items.next().accept(this);
             }
@@ -327,6 +403,10 @@ public class TestRecordVisit {
         }
 
         public <T> void verifyField(String path, T value) {
+            this.verifyField(path, value, null);
+        }
+
+        public <T> void verifyField(String path, T value, Schema schema) {
             VisitableStructure next = visit.removeFirst();
             Object actualValue = next.getValue();
             if (value instanceof String && (!(actualValue instanceof String))) {
@@ -334,6 +414,9 @@ public class TestRecordVisit {
             }
             Assert.assertEquals("Value does not match", value, actualValue);
             Assert.assertEquals("Full path does not match", path, next.getPath().toString());
+            if (schema != null) {
+                Assert.assertEquals("Schema does not match", schema, next.getPath().last().getSchema());
+            }
         }
 
         public void verifyBytesField(String path, byte[] value) {
