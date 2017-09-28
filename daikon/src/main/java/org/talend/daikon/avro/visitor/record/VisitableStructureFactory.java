@@ -10,14 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.visitor;
+package org.talend.daikon.avro.visitor.record;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.daikon.avro.AvroUtils;
-import org.talend.daikon.avro.path.TraversalPath;
+import org.talend.daikon.avro.visitor.path.TraversalPath;
 
 import java.nio.ByteBuffer;
 import java.util.List;

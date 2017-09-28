@@ -10,17 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.visitor;
+package org.talend.daikon.avro.visitor.record;
 
-import org.apache.avro.generic.GenericData;
-import org.talend.daikon.avro.path.TraversalPath;
+import org.talend.daikon.avro.visitor.path.TraversalPath;
 
 /**
- * Wrapper implementation for fixed Avro type
+ * Wrapper for long fields
  */
-public class VisitableFixed extends AbstractVisitableStructure<GenericData.Fixed> {
+public class VisitableLong extends AbstractVisitableStructure<Long> {
 
-    VisitableFixed(GenericData.Fixed value, TraversalPath path) {
+    VisitableLong(Long value, TraversalPath path) {
         super(value, path);
     }
 

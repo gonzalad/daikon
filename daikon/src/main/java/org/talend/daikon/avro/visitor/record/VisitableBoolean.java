@@ -10,9 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.visitor;
+package org.talend.daikon.avro.visitor.record;
 
-import org.talend.daikon.avro.path.TraversalPath;
+import org.talend.daikon.avro.visitor.path.TraversalPath;
 
 /**
  * Wrapper for boolean fields

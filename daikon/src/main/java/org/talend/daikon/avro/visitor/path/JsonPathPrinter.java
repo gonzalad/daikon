@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.path;
+package org.talend.daikon.avro.visitor.path;
 
 /**
  * JSONPath implementation of {@link TraversalPathPrinter}.

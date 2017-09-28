@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.path;
+package org.talend.daikon.avro.visitor.path;
 
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
@@ -32,7 +32,7 @@ public class TestTraversalPath {
         Schema schema = createSimpleSchema();
         TraversalPath path = TraversalPath.create(schema);
         TraversalPath.TraversalPathElement root = path.last();
-        Assert.assertTrue(root instanceof org.talend.daikon.avro.path.TraversalPath.RootPathElement);
+        Assert.assertTrue(root instanceof org.talend.daikon.avro.visitor.path.TraversalPath.RootPathElement);
         Assert.assertEquals("/", path.toString());
         Assert.assertEquals(schema, root.getSchema());
     }

@@ -10,21 +10,24 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.visitor;
+package org.talend.daikon.avro.visitor.record;
 
-import org.talend.daikon.avro.path.TraversalPath;
+import org.talend.daikon.avro.visitor.path.TraversalPath;
+
+import java.nio.ByteBuffer;
 
 /**
- * Wrapper for string fields
+ * Wrapper implementation for Bytes Avro type
  */
-public class VisitableString extends AbstractVisitableStructure<String> {
+public class VisitableBytes extends AbstractVisitableStructure<ByteBuffer> {
 
-    VisitableString(String value, TraversalPath path) {
+    VisitableBytes(ByteBuffer value, TraversalPath path) {
         super(value, path);
     }
 
     @Override
     public void accept(RecordVisitor visitor) {
         visitor.visit(this);
+
     }
 }

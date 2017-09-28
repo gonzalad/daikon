@@ -10,16 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.daikon.avro.visitor;
+package org.talend.daikon.avro.visitor.record;
 
-import org.talend.daikon.avro.path.TraversalPath;
+import org.talend.daikon.avro.visitor.path.TraversalPath;
 
 /**
- * Wrapper for int fields
+ * Wrapper for double fields
  */
-public class VisitableInt extends AbstractVisitableStructure<Integer> {
+public class VisitableDouble extends AbstractVisitableStructure<Double> {
 
-    VisitableInt(Integer value, TraversalPath path) {
+    protected VisitableDouble(Double value, TraversalPath path) {
         super(value, path);
     }
 
