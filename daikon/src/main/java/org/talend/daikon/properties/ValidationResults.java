@@ -14,10 +14,10 @@ package org.talend.daikon.properties;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.talend.daikon.properties.ValidationResult.Result;
 
@@ -39,7 +39,7 @@ public class ValidationResults {
      * @return map of all properties warnings (ValidationResult equals Result.Warning and message should be specified)
      */
     public Map<String, ValidationResult> getWarnings() {
-        return filterResultsByStatus(validationResults, Result.WARNING);
+        return filterResultsByStatus(Result.WARNING);
     }
 
     /**
@@ -47,13 +47,17 @@ public class ValidationResults {
      * specified)
      */
     public Map<String, ValidationResult> getErrors() {
-        return filterResultsByStatus(validationResults, Result.ERROR);
+        return filterResultsByStatus(Result.ERROR);
     }
 
-    private Map<String, ValidationResult> filterResultsByStatus(Map<String, ValidationResult> results,
-            ValidationResult.Result status) {
-        return results.entrySet().stream().filter(entry -> entry.getValue().getStatus().equals(status))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+    private Map<String, ValidationResult> filterResultsByStatus(ValidationResult.Result status) {
+        Map<String, ValidationResult> filteredValues = new HashMap<>();
+        for (Entry<String, ValidationResult> vr : validationResults.entrySet()) {
+            if (status == vr.getValue().getStatus()) {
+                filteredValues.put(vr.getKey(), vr.getValue());
+            }
+        }
+        return filteredValues;
     }
 
     public void addValidationResults(ValidationResults value) {

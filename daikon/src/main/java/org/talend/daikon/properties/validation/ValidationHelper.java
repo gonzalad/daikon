@@ -20,9 +20,12 @@ import org.talend.daikon.properties.property.Property;
 public class ValidationHelper {
 
     /**
-     * Returns the {@link ValidationResults} for the component properties with errors and warnings if they occur.
+     * Validates component properties and its subproperties and returns results of validation process.
+     * Each Property field can be validated either separately, using {@link Property#validate()} method or {@link Validator} set
+     * to the Property field, or using {@link Properties#validate()} method, which can be used to validate complex Properties in
+     * one method.
      *
-     * @return ValidationResults object
+     * @return {@link ValidationResults} for the component properties
      */
     public static ValidationResults validateProperties(Properties props) {
         final ValidationResults results = new ValidationResults();
