@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.runtime.RuntimeContext;
 import org.talend.daikon.properties.runtime.RuntimeContextImpl;
 import org.talend.daikon.properties.service.Repository;
@@ -1197,6 +1198,159 @@ public class PropertiesDynamicMethodHelperTest {
         RuntimeContext context = new RuntimeContextImpl();
         PropertiesDynamicMethodHelper.validateProperty(withBothCallbacks, "property", context);
         verify(withBothCallbacks).validateProperty(context);
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setFormLayoutMethods(Properties, String, Form)} sets {@link Form}'s callback
+     * flags to <code>false</code>,
+     * when {@link Properties} without callbacks is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Form} instance
+     * When {@link Properties} class has no callbacks, Product shouldn't try to call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetFormLayoutMethodsNoCallback() {
+        PropertiesWithoutCallbacks withoutCallbacks = new PropertiesWithoutCallbacks();
+        Form form = new Form(withoutCallbacks, Form.MAIN);
+        PropertiesDynamicMethodHelper.setFormLayoutMethods(withoutCallbacks, Form.MAIN, form);
+        Assert.assertFalse(form.isCallBeforeFormPresent());
+        Assert.assertFalse(form.isCallAfterFormBack());
+        Assert.assertFalse(form.isCallAfterFormNext());
+        Assert.assertFalse(form.isCallAfterFormFinish());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setFormLayoutMethods(Properties, String, Form)} sets {@link Form}'s callback
+     * flags to <code>true</code>,
+     * when {@link Properties} with old callbacks is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Form} instance
+     * When {@link Properties} class has callbacks without parameters, Product may call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetFormLayoutMethodsOldCallback() {
+        PropertiesWithOldCallbacks withOldCallbacks = new PropertiesWithOldCallbacks();
+        Form form = new Form(withOldCallbacks, Form.MAIN);
+        PropertiesDynamicMethodHelper.setFormLayoutMethods(withOldCallbacks, Form.MAIN, form);
+        Assert.assertTrue(form.isCallBeforeFormPresent());
+        Assert.assertTrue(form.isCallAfterFormBack());
+        Assert.assertTrue(form.isCallAfterFormNext());
+        Assert.assertTrue(form.isCallAfterFormFinish());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setFormLayoutMethods(Properties, String, Form)} sets {@link Form}'s callback
+     * flags to <code>false</code>,
+     * when {@link Properties} with new callbacks only is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Form} instance
+     * When {@link Properties} class has only callbacks with {@link RuntimeContext} parameter, but has no callbacks without
+     * parameters, Product shouldn't try to call them
+     * Product should use isCall*() methods to discover whether callbacks without parameters are present
+     */
+    @Test
+    public void testSetFormLayoutMethodsNewCallback() {
+        PropertiesWithRuntimeContextCallbacks withRuntimeContextCallbacks = new PropertiesWithRuntimeContextCallbacks();
+        Form form = new Form(withRuntimeContextCallbacks, Form.MAIN);
+        PropertiesDynamicMethodHelper.setFormLayoutMethods(withRuntimeContextCallbacks, Form.MAIN, form);
+        Assert.assertFalse(form.isCallBeforeFormPresent());
+        Assert.assertFalse(form.isCallAfterFormBack());
+        Assert.assertFalse(form.isCallAfterFormNext());
+        Assert.assertFalse(form.isCallAfterFormFinish());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setFormLayoutMethods(Properties, String, Form)} sets {@link Form}'s callback
+     * flags to <code>true</code>,
+     * when {@link Properties} with both callbacks is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Form} instance
+     * When {@link Properties} class has both callbacks, Product may call them
+     * Product should use isCall*() methods to discover whether callbacks without parameters are present
+     */
+    @Test
+    public void testSetFormLayoutMethodsBothCallbacks() {
+        PropertiesWithBothCallbacks withBothCallbacks = new PropertiesWithBothCallbacks();
+        Form form = new Form(withBothCallbacks, Form.MAIN);
+        PropertiesDynamicMethodHelper.setFormLayoutMethods(withBothCallbacks, Form.MAIN, form);
+        Assert.assertTrue(form.isCallBeforeFormPresent());
+        Assert.assertTrue(form.isCallAfterFormBack());
+        Assert.assertTrue(form.isCallAfterFormNext());
+        Assert.assertTrue(form.isCallAfterFormFinish());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setWidgetLayoutMethods(Properties, String, Widget)} sets {@link Widget}'s
+     * callbacks flags to <code>false</code>,
+     * when {@link Properties} without callbacks is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Widget} instance
+     * When {@link Properties} class has no callbacks, Product shouldn't try to call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetWidgetLayoutMethodsNoCallback() {
+        PropertiesWithoutCallbacks withoutCallbacks = new PropertiesWithoutCallbacks();
+        Widget widget = new Widget(withoutCallbacks);
+        PropertiesDynamicMethodHelper.setWidgetLayoutMethods(withoutCallbacks, "property", widget);
+        Assert.assertFalse(widget.isCallBeforePresent());
+        Assert.assertFalse(widget.isCallBeforeActivate());
+        Assert.assertFalse(widget.isCallValidate());
+        Assert.assertFalse(widget.isCallAfter());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setWidgetLayoutMethods(Properties, String, Widget)} sets {@link Widget}'s
+     * callbacks flags to <code>true</code>,
+     * when {@link Properties} with callbacks only is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Widget} instance
+     * When {@link Properties} class has old callbacks, Product may call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetWidgetLayoutMethodsOldCallback() {
+        PropertiesWithOldCallbacks withOldCallbacks = new PropertiesWithOldCallbacks();
+        Widget widget = new Widget(withOldCallbacks);
+        PropertiesDynamicMethodHelper.setWidgetLayoutMethods(withOldCallbacks, "property", widget);
+        Assert.assertTrue(widget.isCallBeforePresent());
+        Assert.assertFalse(widget.isCallBeforeActivate());
+        Assert.assertTrue(widget.isCallValidate());
+        Assert.assertTrue(widget.isCallAfter());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setWidgetLayoutMethods(Properties, String, Widget)} sets {@link Widget}'s
+     * callbacks flags to <code>false</code>,
+     * when {@link Properties} without new callbacks only is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Widget} instance
+     * When {@link Properties} class has new callbacks only, Product shouldn't try to call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetWidgetLayoutMethodsNewCallback() {
+        PropertiesWithRuntimeContextCallbacks withRuntimeContextCallbacks = new PropertiesWithRuntimeContextCallbacks();
+        Widget widget = new Widget(withRuntimeContextCallbacks);
+        PropertiesDynamicMethodHelper.setWidgetLayoutMethods(withRuntimeContextCallbacks, "property", widget);
+        Assert.assertFalse(widget.isCallBeforePresent());
+        Assert.assertFalse(widget.isCallBeforeActivate());
+        Assert.assertFalse(widget.isCallValidate());
+        Assert.assertFalse(widget.isCallAfter());
+    }
+
+    /**
+     * Asserts {@link PropertiesDynamicMethodHelper#setWidgetLayoutMethods(Properties, String, Widget)} sets {@link Widget}'s
+     * callbacks flags to <code>true</code>,
+     * when {@link Properties} with both callbacks is passed
+     * Callbacks flags are checked by calling isCall*() methods of {@link Widget} instance
+     * When {@link Properties} class has both callbacks, Product may call them
+     * Product should use isCall*() methods to discover whether callbacks are present
+     */
+    @Test
+    public void testSetWidgetLayoutMethodsBothCallbacks() {
+        PropertiesWithBothCallbacks withBothCallbacks = new PropertiesWithBothCallbacks();
+        Widget widget = new Widget(withBothCallbacks);
+        PropertiesDynamicMethodHelper.setWidgetLayoutMethods(withBothCallbacks, "property", widget);
+        Assert.assertTrue(widget.isCallBeforePresent());
+        Assert.assertFalse(widget.isCallBeforeActivate());
+        Assert.assertTrue(widget.isCallValidate());
+        Assert.assertTrue(widget.isCallAfter());
     }
 
 }

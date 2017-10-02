@@ -394,7 +394,7 @@ public final class PropertiesDynamicMethodHelper {
         if (m != null) {
             form.setCallAfterFormNext(true);
         }
-        m = findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, property, !REQUIRED);
+        m = findMethod(props, Properties.METHOD_AFTER_FORM_FINISH, property, !REQUIRED, Repository.class);
         if (m != null) {
             form.setCallAfterFormFinish(true);
         }
