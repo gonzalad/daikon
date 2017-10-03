@@ -30,6 +30,31 @@ import org.talend.daikon.properties.service.Repository;
 
 /**
  * Unit-tests for {@link PropertiesDynamicMethodHelper}
+ * 
+ * Client code should call <code>isCall*()<code> methods of {@link Form} and {@link Widget} classes to discover whether it is
+ * allowed to call callbacks.
+ * There are 4 cases for each callback:
+ * <ol>
+ * <li>
+ * Properties implementation has no callbacks. isCall() should return false. Exception will be thrown if client call callback
+ * </li>
+ * <li>
+ * Properties implementation has callback without RuntimeContext parameter (old callback). This is current implementation.
+ * It should work as before. isCall() should return true. Old callback may be called.
+ * </li>
+ * <li>
+ * Properties implementation has callback with RuntimeContext parameter (new callback), but has no old callback.
+ * It breaks current implementation as product may call service without passing RuntimeContext. So, it should be prohibited.
+ * isCall() should return false.
+ * Exception should be thrown, when client calls the callback.
+ * </li>
+ * <li>
+ * Properties has both callbacks. This is correct implementation to support new feature. isCall() should return true. Product may
+ * pass RuntimeContext argument.
+ * Then new callback will be called. If Product doesn't pass RuntimeContext argument, then old callback should be called.
+ * </li>
+ * </ol>
+ * 
  */
 public class PropertiesDynamicMethodHelperTest {
 
@@ -48,6 +73,7 @@ public class PropertiesDynamicMethodHelperTest {
          * method with package visibility which won't be found
          */
         void beforeSomeProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         /**
@@ -55,6 +81,7 @@ public class PropertiesDynamicMethodHelperTest {
          */
         @SuppressWarnings("unused")
         private void validateAnotherProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
     }
@@ -71,28 +98,36 @@ public class PropertiesDynamicMethodHelperTest {
         }
 
         public void beforeProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void validateProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void beforeFormPresentMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormBackMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormNextMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterRef() {
+            // This is test method. Implementation is empty intentionally
         }
 
         @SuppressWarnings("rawtypes")
         public void afterFormFinishMain(Repository repository) {
+            // This is test method. Implementation is empty intentionally
         }
 
     }
@@ -109,28 +144,36 @@ public class PropertiesDynamicMethodHelperTest {
         }
 
         public void beforeProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void validateProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void beforeFormPresentMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormBackMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormNextMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         @SuppressWarnings("rawtypes")
         public void afterFormFinishMain(Repository repository, RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterRef(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
     }
 
@@ -146,53 +189,69 @@ public class PropertiesDynamicMethodHelperTest {
         }
 
         public void beforeProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void beforeProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void validateProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void validateProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterProperty() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterProperty(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void beforeFormPresentMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void beforeFormPresentMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormBackMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormBackMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormNextMain() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterFormNextMain(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         @SuppressWarnings("rawtypes")
         public void afterFormFinishMain(Repository repository) {
+            // This is test method. Implementation is empty intentionally
         }
 
         @SuppressWarnings("rawtypes")
         public void afterFormFinishMain(Repository repository, RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterRef() {
+            // This is test method. Implementation is empty intentionally
         }
 
         public void afterRef(RuntimeContext context) {
+            // This is test method. Implementation is empty intentionally
         }
     }
 
