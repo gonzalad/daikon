@@ -31,9 +31,8 @@ public class RuntimeContextImpl implements RuntimeContext {
     }
 
     /**
-     * {@inheritDoc}
+     * Sets some data
      */
-    @Override
     public void setData(String key, Object value) {
         map.put(key, value);
     }

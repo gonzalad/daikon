@@ -33,7 +33,7 @@ public interface RuntimeContext {
      * Sets a data value for given key
      * 
      * @param key data value key
-     * @param value data value
+     * @param value data value for given key
      */
     void setData(String key, Object value);
 
