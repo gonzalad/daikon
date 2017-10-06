@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.runtime.RuntimeContext;
-import org.talend.daikon.properties.runtime.RuntimeContextImpl;
 import org.talend.daikon.properties.service.Repository;
 
 /**
@@ -396,7 +395,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterFormBackMain not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormBack(withoutCallbacks, Form.MAIN, context);
     }
 
@@ -411,7 +410,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterFormBackMain not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormBack(withNewCallbacks, Form.MAIN, context);
     }
 
@@ -423,7 +422,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterFormBackRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormBack(withOldCallbacks, Form.MAIN, context);
         verify(withOldCallbacks).afterFormBackMain();
     }
@@ -438,7 +437,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterFormBackRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormBack(withBothCallbacks, Form.MAIN, context);
         verify(withBothCallbacks).afterFormBackMain(context);
     }
@@ -509,7 +508,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expectMessage("Method: afterFormFinishMain not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
         Repository repository = mock(Repository.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormFinish(withoutCallbacks, Form.MAIN, repository, context);
     }
 
@@ -525,7 +524,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expectMessage("Method: afterFormFinishMain not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
         Repository repository = mock(Repository.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormFinish(withNewCallbacks, Form.MAIN, repository, context);
     }
 
@@ -538,7 +537,7 @@ public class PropertiesDynamicMethodHelperTest {
     public void testAfterFormFinishRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
         Repository repository = mock(Repository.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormFinish(withOldCallbacks, Form.MAIN, repository, context);
         verify(withOldCallbacks).afterFormFinishMain(repository);
     }
@@ -554,7 +553,7 @@ public class PropertiesDynamicMethodHelperTest {
     public void testAfterFormFinishRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
         Repository repository = mock(Repository.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormFinish(withBothCallbacks, Form.MAIN, repository, context);
         verify(withBothCallbacks).afterFormFinishMain(repository, context);
     }
@@ -620,7 +619,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterFormNextMain not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormNext(withoutCallbacks, Form.MAIN, context);
     }
 
@@ -635,7 +634,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterFormNextMain not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormNext(withNewCallbacks, Form.MAIN, context);
     }
 
@@ -647,7 +646,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterFormNextRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormNext(withOldCallbacks, Form.MAIN, context);
         verify(withOldCallbacks).afterFormNextMain();
     }
@@ -662,7 +661,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterFormNextRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterFormNext(withBothCallbacks, Form.MAIN, context);
         verify(withBothCallbacks).afterFormNextMain(context);
     }
@@ -728,7 +727,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterProperty not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterProperty(withoutCallbacks, "property", context);
     }
 
@@ -743,7 +742,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: afterProperty not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterProperty(withNewCallbacks, "property", context);
     }
 
@@ -755,7 +754,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterPropertyRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterProperty(withOldCallbacks, "property", context);
         verify(withOldCallbacks).afterProperty();
     }
@@ -770,7 +769,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterPropertyRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterProperty(withBothCallbacks, "property", context);
         verify(withBothCallbacks).afterProperty(context);
     }
@@ -807,7 +806,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterReferenceRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = spy(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterReference(withOldCallbacks, withOldCallbacks.ref, context);
         verify(withOldCallbacks).afterRef();
     }
@@ -822,7 +821,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testAfterReferenceRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = spy(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.afterReference(withBothCallbacks, withBothCallbacks.ref, context);
         verify(withBothCallbacks).afterRef(context);
     }
@@ -888,7 +887,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeFormPresentMain not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforeFormPresent(withoutCallbacks, Form.MAIN, context);
     }
 
@@ -903,7 +902,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeFormPresentMain not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforeFormPresent(withNewCallbacks, Form.MAIN, context);
     }
 
@@ -915,7 +914,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforeFormPresentRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforeFormPresent(withOldCallbacks, Form.MAIN, context);
         verify(withOldCallbacks).beforeFormPresentMain();
     }
@@ -930,7 +929,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforeFormPresentRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforeFormPresent(withBothCallbacks, Form.MAIN, context);
         verify(withBothCallbacks).beforeFormPresentMain(context);
     }
@@ -996,7 +995,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeProperty not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyActivate(withoutCallbacks, "property", context);
     }
 
@@ -1011,7 +1010,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeProperty not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyActivate(withNewCallbacks, "property", context);
     }
 
@@ -1023,7 +1022,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforePropertyActivateRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyActivate(withOldCallbacks, "property", context);
         verify(withOldCallbacks).beforeProperty();
     }
@@ -1038,7 +1037,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforePropertyActivateRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyActivate(withBothCallbacks, "property", context);
         verify(withBothCallbacks).beforeProperty(context);
     }
@@ -1104,7 +1103,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeProperty not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyPresent(withoutCallbacks, "property", context);
     }
 
@@ -1119,7 +1118,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: beforeProperty not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyPresent(withNewCallbacks, "property", context);
     }
 
@@ -1131,7 +1130,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforePropertyPresentRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyPresent(withOldCallbacks, "property", context);
         verify(withOldCallbacks).beforeProperty();
     }
@@ -1146,7 +1145,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testBeforePropertyPresentRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.beforePropertyPresent(withBothCallbacks, "property", context);
         verify(withBothCallbacks).beforeProperty(context);
     }
@@ -1212,7 +1211,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: validateProperty not found");
         PropertiesWithoutCallbacks withoutCallbacks = mock(PropertiesWithoutCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.validateProperty(withoutCallbacks, "property", context);
     }
 
@@ -1227,7 +1226,7 @@ public class PropertiesDynamicMethodHelperTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Method: validateProperty not found");
         PropertiesWithRuntimeContextCallbacks withNewCallbacks = mock(PropertiesWithRuntimeContextCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.validateProperty(withNewCallbacks, "property", context);
     }
 
@@ -1239,7 +1238,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testValidatePropertyRuntimeContextOldCallback() throws Throwable {
         PropertiesWithOldCallbacks withOldCallbacks = mock(PropertiesWithOldCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.validateProperty(withOldCallbacks, "property", context);
         verify(withOldCallbacks).validateProperty();
     }
@@ -1254,7 +1253,7 @@ public class PropertiesDynamicMethodHelperTest {
     @Test
     public void testValidatePropertyRuntimeContextBothCallbacks() throws Throwable {
         PropertiesWithBothCallbacks withBothCallbacks = mock(PropertiesWithBothCallbacks.class);
-        RuntimeContext context = new RuntimeContextImpl();
+        RuntimeContext context = mock(RuntimeContext.class);
         PropertiesDynamicMethodHelper.validateProperty(withBothCallbacks, "property", context);
         verify(withBothCallbacks).validateProperty(context);
     }
