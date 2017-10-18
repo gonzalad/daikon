@@ -187,9 +187,9 @@ public class BeanPredicateVisitor<T> implements IASTVisitor<Predicate<T>> {
     public Predicate<T> visit(AndExpression andExpression) {
         final Expression[] expressions = andExpression.getExpressions();
         if (expressions.length > 0) {
-            Predicate<T> predicate = (Predicate<T>) expressions[0].accept(this);
+            Predicate<T> predicate = expressions[0].accept(this);
             for (int i = 1; i < expressions.length; i++) {
-                predicate = predicate.and((Predicate<T>) expressions[i].accept(this));
+                predicate = predicate.and(expressions[i].accept(this));
             }
             return predicate;
         } else {
@@ -201,9 +201,9 @@ public class BeanPredicateVisitor<T> implements IASTVisitor<Predicate<T>> {
     public Predicate<T> visit(OrExpression orExpression) {
         final Expression[] expressions = orExpression.getExpressions();
         if (expressions.length > 0) {
-            Predicate<T> predicate = (Predicate<T>) expressions[0].accept(this);
+            Predicate<T> predicate = expressions[0].accept(this);
             for (int i = 1; i < expressions.length; i++) {
-                predicate = predicate.or((Predicate<T>) expressions[i].accept(this));
+                predicate = predicate.or(expressions[i].accept(this));
             }
             return predicate;
         } else {
@@ -343,7 +343,7 @@ public class BeanPredicateVisitor<T> implements IASTVisitor<Predicate<T>> {
 
     @Override
     public Predicate<T> visit(NotExpression notExpression) {
-        final Predicate<T> accept = (Predicate<T>) notExpression.getExpression().accept(this);
+        final Predicate<T> accept = notExpression.getExpression().accept(this);
         return accept.negate();
     }
 
